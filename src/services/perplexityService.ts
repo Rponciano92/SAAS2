@@ -41,7 +41,7 @@ export class PerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -53,47 +53,7 @@ export class PerplexityService {
             }
           ],
           max_tokens: 1000,
-          temperature: 0.2,
-          top_p: 0.9,
-          return_citations: true,
-          return_images: false,
-          return_related_questions: true,
-          search_recency_filter: "month",
-          stream: false,
-          presence_penalty: 0,
-          frequency_penalty: 1
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erro na API Perplexity:', response.status, errorText);
-        throw new Error(`Erro na pesquisa: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Resposta da Perplexity recebida');
-
-      return {
-        content: data.choices[0].message.content,
-        citations: data.citations || [],
-        relatedQuestions: data.related_questions || []
-      };
-    } catch (error) {
-      console.error('❌ Erro no serviço Perplexity:', error);
-      throw new Error(`Falha na pesquisa web: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    }
-  }
-
-  async searchMarketTrends(sector: string, year: string = '2025'): Promise<PerplexityResponse> {
-    const query = `Tendências do mercado ${sector} em ${year} no Brasil. Dados atuais, crescimento, principais players e oportunidades.`;
-    return this.searchWeb(query, `Setor: ${sector}, Ano: ${year}`);
-  }
-
-  async searchCompanyInfo(companyName: string): Promise<PerplexityResponse> {
-    const query = `Informações atuais sobre a empresa ${companyName}. Faturamento, mercado, concorrentes e posicionamento.`;
-    return this.searchWeb(query, `Empresa: ${companyName}`);
-  }
+          temperature: 0.2
 
   async searchRegulations(topic: string): Promise<PerplexityResponse> {
     const query = `Regulamentações e compliance sobre ${topic} no Brasil. Leis atuais, mudanças recentes e impactos para empresas.`;
