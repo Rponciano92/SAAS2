@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getCompanyById, getNecessidadeIcon, getNecessidadeLabel } from '@/data/mockCompanies';
+import { getNecessidadeIcon, getNecessidadeLabel } from '@/data/mockCompanies';
 import { CompanyNecessidade, EmpresaDetalhes } from '@/types/company';
 import CompanyHeader from '@/components/Empresa/CompanyHeader';
 import ChatTab from '@/components/Empresa/tabs/ChatTab';
@@ -9,28 +9,76 @@ import MeetingsTab from '@/components/Empresa/tabs/MeetingsTab';
 import ReportsTab from '@/components/Empresa/tabs/ReportsTab';
 import KPIsTab from '@/components/Empresa/tabs/KPIsTab';
 import PredictiveAnalyticsTab from '@/components/Empresa/tabs/PredictiveAnalyticsTab';
+import { useCompanies } from '@/hooks/useSupabase';
 
 export default function CompanyDetailPage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
+  const { companies, loading } = useCompanies();
   const [company, setCompany] = useState<EmpresaDetalhes | null>(null);
   const [activeTab, setActiveTab] = useState<CompanyNecessidade>('chat');
-  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     if (companyId) {
-      const companyData = getCompanyById(companyId);
+      const companyData = companies.find(c => c.id === companyId);
       if (companyData) {
-        setCompany(companyData);
+        // Convert Supabase data to EmpresaDetalhes format
+        const empresaDetalhes: EmpresaDetalhes = {
+          id: companyData.id,
+          nome: companyData.nome,
+          setor: companyData.setor,
+          tamanho: companyData.tamanho as any,
+          avatar: getAvatarForSetor(companyData.setor),
+          faturamento: companyData.faturamento,
+          website: companyData.website || undefined,
+          status: companyData.status as any,
+          progresso: companyData.progresso,
+          proximaReuniao: undefined,
+          ultimaInteracao: companyData.updated_at,
+          valorContrato: undefined,
+          necessidades: companyData.necessidades as CompanyNecessidade[],
+          stakeholders: [], // Would be loaded separately
+          configuracaoIA: {
+            personalidade: 'Consultivo e Estratégico',
+            foco: ['Crescimento', 'Estratégia'],
+            restricoes: []
+          },
+          estatisticas: {
+            totalContratos: 0,
+            reunioesRealizadas: 0,
+            relatoriosGerados: 0,
+            kpisMonitorados: 0,
+            horasEconomizadas: 0
+          },
+          descricao: companyData.desafios,
+          desafios: companyData.desafios,
+          objetivos: companyData.objetivos
+        };
+        
+        setCompany(empresaDetalhes);
         
         // Set the first available necessity as the active tab
-        if (companyData.necessidades.length > 0) {
-          setActiveTab(companyData.necessidades[0]);
+        if (empresaDetalhes.necessidades.length > 0) {
+          setActiveTab(empresaDetalhes.necessidades[0]);
         }
       }
-      setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, companies]);
+  
+  function getAvatarForSetor(setor: string): string {
+    const avatars: Record<string, string> = {
+      'Tecnologia': '🚀',
+      'Varejo': '🛍️',
+      'Indústria': '🔧',
+      'Serviços': '⚙️',
+      'Saúde': '🏥',
+      'Educação': '🎓',
+      'Financeiro': '💰',
+      'Agronegócio': '🌾',
+      'Construção': '🏗️'
+    };
+    return avatars[setor] || '🏢';
+  }
   
   if (loading) {
     return (

@@ -129,12 +129,11 @@ export default function GestaoEmpresas() {
     tamanho: company.tamanho,
     faturamento: company.faturamento,
     status: company.status as 'ativo' | 'pausado' | 'concluido',
-    proximaReuniao: undefined, // This would come from a meetings table
+    proximaReuniao: undefined,
     ultimaInteracao: company.updated_at,
-    valorContrato: undefined, // This would come from a contracts table
     necessidades: company.necessidades,
     progresso: company.progresso,
-    stakeholders: 0, // This would be calculated from stakeholders table
+    stakeholders: 0,
     avatar: getAvatarForSetor(company.setor)
   }));
 
