@@ -1,75 +1,52 @@
-// Perplexity AI Service - Sistema de Pesquisa Web
-const PERPLEXITY_API_KEY = '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';
-const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
-
 export interface PerplexityResponse {
   content: string;
-  citations?: string[];
-  relatedQuestions?: string[];
+  sources?: string[];
 }
 
 export class PerplexityService {
-  private apiKey: string;
-  private apiUrl: string;
+  private static readonly API_KEY = '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';
+  private static readonly API_URL = 'https://api.perplexity.ai/chat/completions';
 
-  constructor() {
-    this.apiKey = PERPLEXITY_API_KEY;
-    this.apiUrl = PERPLEXITY_API_URL;
-  }
-
-  async searchWeb(query: string, context?: string): Promise<PerplexityResponse> {
+  static async searchWeb(query: string): Promise<string> {
     try {
-      console.log('🔍 Iniciando pesquisa web com Perplexity:', query);
+      console.log('🔍 Iniciando pesquisa web:', query);
 
-      const systemPrompt = `Você é um assistente de pesquisa especializado em consultoria empresarial. 
-      Forneça informações precisas, atualizadas e relevantes sobre empresas, mercados e tendências de negócios.
-      ${context ? `Contexto adicional: ${context}` : ''}
-      
-      Foque em:
-      - Dados atuais e verificáveis
-      - Tendências de mercado
-      - Informações sobre empresas específicas
-      - Regulamentações e compliance
-      - Benchmarks do setor
-      
-      Seja conciso mas completo. Use dados específicos quando disponíveis.`;
-
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.API_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: "sonar",
           messages: [
             {
-              role: 'system',
-              content: systemPrompt
+              role: "system",
+              content: "Você é um assistente de pesquisa especializado em consultoria empresarial. Forneça informações precisas, atualizadas e relevantes sobre empresas, mercados e tendências de negócios. Responda em português brasileiro."
             },
             {
-              role: 'user',
+              role: "user",
               content: query
             }
           ],
           max_tokens: 1000,
           temperature: 0.2
-        }
-        )
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Erro na API Perplexity:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-      )
+
+      const data = await response.json();
+      console.log('✅ Pesquisa concluída com sucesso');
+      
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('❌ Erro na pesquisa:', error);
+      throw new Error(`Erro na pesquisa: ${error.message}`);
     }
   }
-
-  async searchRegulations(topic: string): Promise<PerplexityResponse> {
-    const query = `Regulamentações e compliance sobre ${topic} no Brasil. Leis atuais, mudanças recentes e impactos para empresas.`;
-    return this.searchWeb(query, `Regulamentação: ${topic}`);
-  }
-
-  async searchBenchmarks(sector: string, metric: string): Promise<PerplexityResponse> {
-    const query = `Benchmarks e métricas do setor ${sector} para ${metric}. Dados atuais do mercado brasileiro e internacional.`;
-    return this.searchWeb(query, `Benchmark: ${sector} - ${metric}`);
-  }
 }
-
-export const perplexityService = new PerplexityService();
