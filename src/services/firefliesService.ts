@@ -1,6 +1,51 @@
 // Fireflies.ai API Service - VERSÃO CORRIGIDA FINAL
 import { supabase } from '@/lib/supabase';
 
+// Configuração da API com validação aprimorada
+const FIREFLIES_API_URL = import.meta.env.VITE_FIREFLIES_API_URL || 'https://api.fireflies.ai/graphql';
+const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY;
+
+// Validação da API key
+function validateApiKey(): { isValid: boolean; error?: string } {
+  if (!FIREFLIES_API_KEY) {
+    return {
+      isValid: false,
+      error: 'VITE_FIREFLIES_API_KEY não configurada no arquivo .env'
+    };
+  }
+  
+  if (FIREFLIES_API_KEY === 'your_actual_fireflies_api_key_here' || 
+      FIREFLIES_API_KEY === 'demo-key' ||
+      FIREFLIES_API_KEY.length < 10) {
+    return {
+      isValid: false,
+      error: 'VITE_FIREFLIES_API_KEY é um valor placeholder ou inválido'
+    };
+  }
+  
+  // Verificar formato básico da API key (UUID-like)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(FIREFLIES_API_KEY)) {
+    return {
+      isValid: false,
+      error: 'VITE_FIREFLIES_API_KEY não tem formato válido (deve ser UUID)'
+    };
+  }
+  
+  return { isValid: true };
+}
+
+// Log detalhado para debug
+function logDebugInfo(operation: string, data: any) {
+  console.group(`🔥 Fireflies Debug - ${operation}`);
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('API URL:', FIREFLIES_API_URL);
+  console.log('API Key válida:', !!FIREFLIES_API_KEY);
+  console.log('API Key formato:', FIREFLIES_API_KEY ? `${FIREFLIES_API_KEY.substring(0, 8)}...` : 'N/A');
+  console.log('Dados:', data);
+  console.groupEnd();
+}
+
 interface FirefliesConfig {
   apiUrl: string;
   apiKey: string;
@@ -34,11 +79,26 @@ export class FirefliesService {
 
   private async makeGraphQLRequest(query: string, variables?: any) {
     try {
+      // Validar API key antes de fazer requisição
+      const validation = validateApiKey();
+      if (!validation.isValid) {
+        logDebugInfo('API Key Validation Failed', { error: validation.error });
+        throw new Error(`API Key inválida: ${validation.error}`);
+      }
+      
+      logDebugInfo('GraphQL Request', {
+        query: query.substring(0, 100) + '...',
+        variables,
+        apiUrl: this.apiUrl
+      });
+      
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'Aether-AI/1.0',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           query,
@@ -46,19 +106,61 @@ export class FirefliesService {
         })
       });
 
+      logDebugInfo('API Response', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
+        const errorText = await response.text();
+        logDebugInfo('HTTP Error', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        
+        // Verificar se é erro de autenticação
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(`Erro de autenticação (${response.status}): API key expirada ou inválida. Obtenha uma nova em https://app.fireflies.ai/integrations/custom/api`);
+        }
+        
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       
+      logDebugInfo('API Data', {
+        hasData: !!data.data,
+        hasErrors: !!data.errors,
+        errorCount: data.errors?.length || 0
+      });
+      
       if (data.errors) {
+        // Log detalhado dos erros GraphQL
+        logDebugInfo('GraphQL Errors', data.errors);
+        
+        // Verificar se é erro de autenticação específico
+        const authError = data.errors.find((e: any) => 
+          e.extensions?.code === 'auth_failed' || 
+          e.message?.toLowerCase().includes('auth') ||
+          e.message?.toLowerCase().includes('unauthorized')
+        );
+        
+        if (authError) {
+          throw new Error(`Erro de autenticação: ${authError.message}. Verifique se sua API key é válida em https://app.fireflies.ai/integrations/custom/api`);
+        }
+        
         throw new Error(`GraphQL error: ${data.errors[0].message}`);
       }
 
+      logDebugInfo('Success', { dataKeys: Object.keys(data.data || {}) });
       return data.data;
     } catch (error) {
-      console.error('Fireflies API Error:', error);
+      logDebugInfo('Request Failed', {
+        error: error.message,
+        stack: error.stack
+      });
       throw error;
     }
   }
@@ -217,17 +319,24 @@ export class FirefliesService {
  */
 export async function joinLiveMeeting(meetingLink: string, meetingTitle: string, language: string = 'pt-BR', attendees: any[] = []) {
   try {
-    console.log('🤖 Fazendo IA entrar AUTOMATICAMENTE na reunião:', { meetingLink, meetingTitle, language });
+    logDebugInfo('Join Live Meeting', { meetingLink, meetingTitle, language, attendees });
     
     if (!meetingLink || !meetingLink.startsWith('http')) {
       throw new Error('Link da reunião inválido');
+    }
+
+    // Validar API key antes de tentar
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      console.warn('⚠️ API key inválida, usando método manual como fallback');
+      return getManualInstructions();
     }
 
     // USAR API OFICIAL DO FIREFLIES - addToLiveMeeting
     const result = await addBotToLiveMeeting(meetingLink, meetingTitle, language, attendees);
     
     if (result.success) {
-      console.log('✅ IA entrou automaticamente na reunião!');
+      logDebugInfo('Automatic Join Success', result);
       
       return {
         success: true,
@@ -256,7 +365,7 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
       };
     } else {
       // Se API falhar, usar método manual como fallback
-      console.warn('⚠️ API automática falhou, usando método manual:', result.error);
+      logDebugInfo('API Failed - Using Manual Fallback', result);
       
       return {
         success: true,
@@ -269,7 +378,10 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
     }
     
   } catch (error) {
-    console.error('Erro ao fazer IA entrar automaticamente:', error);
+    logDebugInfo('Join Meeting Error', {
+      error: error.message,
+      stack: error.stack
+    });
     
     // Fallback para instruções manuais em caso de erro
     return {
@@ -289,18 +401,16 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
  */
 async function addBotToLiveMeeting(meetingLink: string, title: string, language: string, attendees: any[] = []) {
   try {
-    console.log('🔥 Chamando API addToLiveMeeting do Fireflies (versão corrigida)...');
+    logDebugInfo('Add Bot To Live Meeting', { meetingLink, title, language });
     
-    // Chave API do Fireflies (fornecida pelo usuário)
-    const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY || 'demo-key';
-    
-    // Verificar se a chave é válida antes de fazer a chamada
-    if (!FIREFLIES_API_KEY || FIREFLIES_API_KEY === 'demo-key' || FIREFLIES_API_KEY === 'your_actual_fireflies_api_key_here') {
-      console.warn('⚠️ API key do Fireflies não configurada ou inválida');
+    // Validar API key
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      logDebugInfo('API Key Validation Failed', validation);
       return { 
         success: false, 
-        error: 'API key não configurada',
-        details: 'Configure uma API key válida em https://app.fireflies.ai/integrations/custom/api'
+        error: validation.error,
+        details: 'Obtenha uma nova API key em https://app.fireflies.ai/integrations/custom/api'
       };
     }
 
@@ -318,13 +428,15 @@ async function addBotToLiveMeeting(meetingLink: string, title: string, language:
       meetingLink: meetingLink
     };
 
-    console.log('📡 Enviando requisição SIMPLIFICADA para API do Fireflies:', variables);
+    logDebugInfo('Sending GraphQL Request', { mutation, variables });
 
-    const response = await fetch('https://api.fireflies.ai/graphql', {
+    const response = await fetch(FIREFLIES_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${FIREFLIES_API_KEY}`,
+        'User-Agent': 'Aether-AI/1.0',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
         query: mutation,
@@ -332,50 +444,76 @@ async function addBotToLiveMeeting(meetingLink: string, title: string, language:
       })
     });
 
-    console.log('📊 Status da resposta:', response.status);
+    logDebugInfo('API Response Status', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Erro HTTP:', response.status, response.statusText, errorText);
+      logDebugInfo('HTTP Error Details', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      
+      // Verificar se é erro de autenticação
+      if (response.status === 401 || response.status === 403) {
+        return { 
+          success: false, 
+          error: 'API key expirada ou inválida',
+          details: 'Obtenha uma nova chave em https://app.fireflies.ai/integrations/custom/api',
+          httpStatus: response.status
+        };
+      }
+      
       return { 
-        success: false, 
-        error: `Falha na autenticação da API`,
-        details: errorText
+        success: false,
+        error: `Erro HTTP ${response.status}`,
+        details: errorText,
+        httpStatus: response.status
       };
     }
 
     const data = await response.json();
-    console.log('📦 Resposta da API:', data);
+    logDebugInfo('API Response Data', data);
 
     if (data.errors) {
-      console.error('❌ Erros GraphQL:', data.errors);
+      logDebugInfo('GraphQL Errors', data.errors);
       
       // Verificar se é erro de autenticação
-      const authError = data.errors.find((e: any) => e.code === 'auth_failed');
+      const authError = data.errors.find((e: any) => 
+        e.extensions?.code === 'auth_failed' || 
+        e.message?.toLowerCase().includes('auth') ||
+        e.message?.toLowerCase().includes('unauthorized')
+      );
+      
       if (authError) {
         return { 
           success: false, 
-          error: 'Chave de API inválida ou expirada',
-          details: 'Obtenha uma nova chave em https://app.fireflies.ai/integrations/custom/api'
+          error: 'API key expirada ou inválida',
+          details: 'Obtenha uma nova chave em https://app.fireflies.ai/integrations/custom/api',
+          authError: authError.message
         };
       }
       
       return { 
         success: false, 
-        error: 'Erro na API do Fireflies',
+        error: 'Erro GraphQL do Fireflies',
         graphqlErrors: data.errors
       };
     }
 
     if (data.data?.addToLiveMeeting?.success) {
-      console.log('🎉 Bot adicionado com sucesso à reunião!');
+      logDebugInfo('Bot Added Successfully', data.data.addToLiveMeeting);
       return {
         success: true,
         message: 'Bot entrando automaticamente na reunião',
         data: data.data.addToLiveMeeting
       };
     } else {
-      console.error('❌ Resposta inesperada:', data);
+      logDebugInfo('Unexpected Response', data);
       return { 
         success: false, 
         error: 'Falha na configuração da reunião',
@@ -384,11 +522,17 @@ async function addBotToLiveMeeting(meetingLink: string, title: string, language:
     }
 
   } catch (error) {
-    console.error('❌ Erro na API addToLiveMeeting:', error);
+    logDebugInfo('API Call Exception', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return { 
       success: false, 
-      error: 'Erro de conexão com a API',
-      stack: error.stack
+      error: 'Erro de conexão ou timeout',
+      details: error.message,
+      type: error.name
     };
   }
 }
@@ -399,7 +543,7 @@ async function addBotToLiveMeeting(meetingLink: string, title: string, language:
 function getManualInstructions() {
   return {
     success: true,
-    message: 'Para que a IA entre na reunião, adicione fred@fireflies.ai como participante.',
+    message: 'Use o método manual para adicionar o bot à reunião:',
     method: 'manual_invite',
     instructions: [
       '1. Abra sua reunião no Google Meet',
@@ -412,7 +556,8 @@ function getManualInstructions() {
     tips: [
       '💡 O bot aparecerá como "Fireflies Notetaker"',
       '💡 Aceite quando ele pedir para entrar',
-      '💡 A gravação é automática após aceitar'
+      '💡 A gravação é automática após aceitar',
+      '💡 Este método sempre funciona, mesmo quando a API está indisponível'
     ]
   };
 }
@@ -463,6 +608,18 @@ export async function checkBotStatus(meetingId: string) {
  */
 export async function testFirefliesConnection() {
   try {
+    logDebugInfo('Testing Connection', { apiUrl: FIREFLIES_API_URL });
+    
+    // Validar API key primeiro
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: validation.error,
+        message: 'API key inválida ou não configurada'
+      };
+    }
+    
     const firefliesService = getFirefliesService();
     
     // Query simples para testar conectividade
@@ -471,11 +628,14 @@ export async function testFirefliesConnection() {
         user {
           id
           email
+          name
         }
       }
     `;
     
     const result = await firefliesService.makeGraphQLRequest(query);
+    
+    logDebugInfo('Connection Test Success', result);
     
     return {
       success: true,
@@ -483,11 +643,26 @@ export async function testFirefliesConnection() {
       user: result.user
     };
   } catch (error) {
-    console.error('Erro ao testar conexão:', error);
+    logDebugInfo('Connection Test Failed', {
+      error: error.message,
+      stack: error.stack
+    });
+    
+    // Verificar tipo de erro para dar feedback específico
+    if (error.message.includes('API key')) {
+      return {
+        success: false,
+        error: error.message,
+        message: 'Problema com a API key do Fireflies.ai',
+        solution: 'Obtenha uma nova API key em https://app.fireflies.ai/integrations/custom/api'
+      };
+    }
+    
     return {
       success: false,
       error: error.message,
-      message: 'Falha na conexão com Fireflies.ai'
+      message: 'Falha na conexão com Fireflies.ai',
+      fallback: 'Use o método manual: adicione fred@fireflies.ai como participante'
     };
   }
 }
@@ -527,12 +702,14 @@ let firefliesService: FirefliesService | null = null;
 
 export const getFirefliesService = (): FirefliesService => {
   if (!firefliesService) {
-    const firefliesApiUrl = import.meta.env.VITE_FIREFLIES_API_URL || 'https://api.fireflies.ai/graphql';
-    const apiKey = import.meta.env.VITE_FIREFLIES_API_KEY || 'demo-key';
+    const firefliesApiUrl = FIREFLIES_API_URL;
+    const apiKey = FIREFLIES_API_KEY || 'demo-key';
     const webhookUrl = import.meta.env.VITE_FIREFLIES_WEBHOOK_URL || '';
 
-    if (!apiKey || apiKey === 'demo-key') {
-      console.warn('⚠️ Chave do Fireflies.ai não configurada. Algumas funcionalidades podem não funcionar.');
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      console.warn('⚠️ Fireflies.ai não configurado corretamente:', validation.error);
+      console.warn('📝 Para configurar: https://app.fireflies.ai/integrations/custom/api');
     }
 
     firefliesService = new FirefliesService({ apiUrl: firefliesApiUrl, apiKey, webhookUrl });
