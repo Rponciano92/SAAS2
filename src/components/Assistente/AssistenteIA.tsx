@@ -369,6 +369,7 @@ export default function AssistenteIA() {
           border-l border-gray-200/50 md:border-none
           rounded-l-lg md:rounded-none
         `}>
+          <>
           {/* Mobile close button */}
           <div className="md:hidden flex justify-end p-2">
             <button
@@ -484,6 +485,7 @@ export default function AssistenteIA() {
               </div>
               </div>
             </div>
+          </>
           </div>
           
           {/* Mobile Sidebar Toggle - Logo abaixo do header */}
