@@ -181,17 +181,17 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
   };
 
   return (
-    <div className="h-[calc(100vh-200px)] flex flex-col space-y-6">
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="glass-card-strong p-6">
+      <div className="glass-card-strong p-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-[#0A74DA] to-[#003B6D] rounded-xl shadow-lg">
-              <MessageSquare size={24} className="text-white" />
+            <div className="p-2 bg-gradient-to-br from-[#0A74DA] to-[#003B6D] rounded-xl shadow-lg">
+              <MessageSquare size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="page-title">🤖 Assistente IA Conversacional</h1>
-              <p className="text-gray-600">Chat inteligente personalizado para consultoria</p>
+              <h1 className="text-xl font-bold text-[#003B6D]">🤖 Assistente IA Conversacional</h1>
+              <p className="text-sm text-gray-600">Chat inteligente personalizado para consultoria</p>
             </div>
           </div>
 
@@ -199,7 +199,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
             <select
               value={empresaSelecionada}
               onChange={(e) => setEmpresaSelecionada(e.target.value)}
-              className="glass-input px-4 py-2 text-[#003B6D] rounded-xl text-sm"
+              className="glass-input px-3 py-2 text-[#003B6D] rounded-lg text-sm"
             >
               <option value="">Contexto Geral</option>
               <option value="techstart">🚀 TechStart Inovação</option>
@@ -217,11 +217,11 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 flex space-x-6">
+      <div className="flex-1 flex gap-4 min-h-0">
         {/* Messages Area */}
-        <div className="flex-1 glass-card flex flex-col">
+        <div className="flex-1 glass-card flex flex-col min-h-0">
           {/* Messages */}
-          <div className="flex-1 p-6 overflow-y-auto space-y-4">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 min-h-0">
             {mensagens.map((mensagem) => (
               <div
                 key={mensagem.id}
@@ -239,7 +239,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                   </div>
                   
                   <div className={`
-                    p-4 rounded-2xl
+                    p-3 rounded-2xl
                     ${mensagem.tipo === 'user' 
                       ? 'bg-[#0A74DA] text-white' 
                       : 'glass-card-subtle'
@@ -250,12 +250,12 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                     </div>
                     
                     {mensagem.acoesSugeridas && (
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-2 flex flex-wrap gap-1">
                         {mensagem.acoesSugeridas.map((acao, index) => (
                           <button
                             key={index}
                             onClick={() => handleEnviarMensagem(acao)}
-                            className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-full text-xs transition-colors"
+                            className="px-2 py-1 bg-white/20 hover:bg-white/30 rounded-full text-xs transition-colors"
                           >
                             {acao}
                           </button>
@@ -263,7 +263,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                       </div>
                     )}
                     
-                    <div className="text-xs opacity-70 mt-2">
+                    <div className="text-xs opacity-70 mt-1">
                       {new Date(mensagem.timestamp).toLocaleTimeString()}
                     </div>
                   </div>
@@ -277,7 +277,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                   <div className="p-2 bg-gradient-to-br from-[#B8860B] to-[#DAA520] text-white rounded-full">
                     <Bot size={16} />
                   </div>
-                  <div className="glass-card-subtle p-4 rounded-2xl">
+                  <div className="glass-card-subtle p-3 rounded-2xl">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -292,7 +292,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
           </div>
 
           {/* Input Area */}
-          <div className="p-6 border-t border-white/20">
+          <div className="p-4 border-t border-white/20 flex-shrink-0">
             <div className="flex items-end space-x-4">
               <div className="flex-1">
                 <textarea
@@ -300,7 +300,7 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                   onChange={(e) => setNovaMensagem(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Digite sua pergunta ou solicite uma análise..."
-                  className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+                  className="w-full glass-input px-3 py-2 text-[#003B6D] rounded-xl resize-none"
                   rows={2}
                 />
               </div>
@@ -308,65 +308,65 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                 onClick={() => handleEnviarMensagem()}
                 disabled={!novaMensagem.trim() || isTyping}
                 className={`
-                  p-3 rounded-xl transition-all
+                  p-2 rounded-xl transition-all
                   ${(!novaMensagem.trim() || isTyping)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'glass-button text-white hover:shadow-lg'
                   }
                 `}
               >
-                <Send size={20} />
+                <Send size={18} />
               </button>
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="w-80 space-y-6">
+        <div className="w-72 space-y-4 flex-shrink-0">
           {/* Quick Actions */}
-          <div className="glass-card p-6">
-            <h4 className="font-bold text-[#003B6D] mb-4">⚡ Ações Rápidas</h4>
-            <div className="space-y-2">
+          <div className="glass-card p-4">
+            <h4 className="font-bold text-[#003B6D] mb-3 text-sm">⚡ Ações Rápidas</h4>
+            <div className="space-y-1">
               <button
                 onClick={() => handleEnviarMensagem('Gerar análise da empresa selecionada')}
-                className="w-full text-left p-3 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-3"
+                className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <BarChart3 size={16} className="text-[#0A74DA]" />
-                <span className="text-sm">Gerar Análise</span>
+                <BarChart3 size={14} className="text-[#0A74DA]" />
+                <span className="text-xs">Gerar Análise</span>
               </button>
               <button
                 onClick={() => handleEnviarMensagem('Preparar próxima reunião')}
-                className="w-full text-left p-3 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-3"
+                className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Calendar size={16} className="text-[#28A745]" />
-                <span className="text-sm">Preparar Reunião</span>
+                <Calendar size={14} className="text-[#28A745]" />
+                <span className="text-xs">Preparar Reunião</span>
               </button>
               <button
                 onClick={() => handleEnviarMensagem('Buscar metodologias relevantes')}
-                className="w-full text-left p-3 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-3"
+                className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Brain size={16} className="text-[#B8860B]" />
-                <span className="text-sm">Buscar Conhecimento</span>
+                <Brain size={14} className="text-[#B8860B]" />
+                <span className="text-xs">Buscar Conhecimento</span>
               </button>
               <button
                 onClick={() => handleEnviarMensagem('Criar relatório executivo')}
-                className="w-full text-left p-3 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-3"
+                className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <FileText size={16} className="text-[#FFA500]" />
-                <span className="text-sm">Criar Relatório</span>
+                <FileText size={14} className="text-[#FFA500]" />
+                <span className="text-xs">Criar Relatório</span>
               </button>
             </div>
           </div>
 
           {/* Sugestões */}
-          <div className="glass-card p-6">
-            <h4 className="font-bold text-[#003B6D] mb-4">💡 Sugestões</h4>
-            <div className="space-y-2">
+          <div className="glass-card p-4">
+            <h4 className="font-bold text-[#003B6D] mb-3 text-sm">💡 Sugestões</h4>
+            <div className="space-y-1">
               {sugestoesPredefinidas.map((sugestao, index) => (
                 <button
                   key={index}
                   onClick={() => handleEnviarMensagem(sugestao)}
-                  className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors text-sm text-gray-700"
+                  className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors text-xs text-gray-700"
                 >
                   {sugestao}
                 </button>
@@ -375,9 +375,9 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
           </div>
 
           {/* Status da IA */}
-          <div className="glass-card p-6">
-            <h4 className="font-bold text-[#003B6D] mb-4">🤖 Status da IA</h4>
-            <div className="space-y-3 text-sm">
+          <div className="glass-card p-4">
+            <h4 className="font-bold text-[#003B6D] mb-3 text-sm">🤖 Status da IA</h4>
+            <div className="space-y-2 text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Modo:</span>
                 <span className="font-medium text-[#003B6D]">Offline Seguro</span>
@@ -398,17 +398,17 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
           </div>
 
           {/* Empresas Ativas */}
-          <div className="glass-card p-6">
-            <h4 className="font-bold text-[#003B6D] mb-4">🏢 Empresas Ativas</h4>
-            <div className="space-y-2">
+          <div className="glass-card p-4">
+            <h4 className="font-bold text-[#003B6D] mb-3 text-sm">🏢 Empresas Ativas</h4>
+            <div className="space-y-1">
               {['TechStart Inovação', 'RetailMax Varejo', 'FinTech Solutions'].map((empresa, index) => (
                 <button
                   key={index}
                   onClick={() => handleEnviarMensagem(`Analisar ${empresa}`)}
                   className="w-full text-left p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
                 >
-                  <Building2 size={14} className="text-[#0A74DA]" />
-                  <span className="text-sm">{empresa}</span>
+                  <Building2 size={12} className="text-[#0A74DA]" />
+                  <span className="text-xs">{empresa}</span>
                 </button>
               ))}
             </div>
