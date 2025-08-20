@@ -363,10 +363,11 @@ export default function AssistenteIA() {
           w-64 space-y-2 flex-shrink-0 overflow-hidden
           md:block
           ${sidebarOpen ? 'block' : 'hidden'}
-          md:relative absolute top-0 right-0 h-full z-10 md:z-auto
-          bg-white md:bg-transparent
-          shadow-lg md:shadow-none
-          border-l border-gray-200 md:border-none
+          md:relative absolute top-0 right-0 h-full z-20 md:z-auto
+          bg-white/95 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none
+          shadow-xl md:shadow-none
+          border-l border-gray-200/50 md:border-none
+          rounded-l-lg md:rounded-none
         `}>
           {/* Mobile close button */}
           <div className="md:hidden flex justify-end p-2">
@@ -481,15 +482,23 @@ export default function AssistenteIA() {
                 <span className="text-gray-600">Modo:</span>
                 <span className="font-medium text-[#0A74DA]">Automático</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Fontes:</span>
-                <span className="font-medium text-[#B8860B]">Conhecimento + Web</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Precisão:</span>
-                <span className="font-medium text-[#28A745]">98% validada</span>
               </div>
             </div>
+          </div>
+          
+          {/* Mobile Sidebar Toggle - Logo abaixo do header */}
+          <div className="md:hidden px-6 py-2 border-b border-white/20">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="w-full flex items-center justify-between p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+            >
+              <span className="text-sm font-medium">Ações e Sugestões</span>
+              <div className={`transform transition-transform ${sidebarOpen ? 'rotate-180' : ''}`}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </button>
           </div>
 
           {/* Empresas Ativas */}
@@ -515,8 +524,8 @@ export default function AssistenteIA() {
         
         {/* Mobile overlay */}
         {sidebarOpen && (
-          <div 
-            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-5"
+          <div
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10"
             onClick={() => setSidebarOpen(false)}
           />
         )}
