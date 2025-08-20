@@ -257,12 +257,69 @@ export default function CadastroEmpresa() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Salvar empresa e verificar se precisa mostrar modal de pesquisa
-    handleSaveCompany();
+    // Não fazer nada aqui - apenas prevenir submit padrão
   };
 
-  // Nova função para pesquisa automática
+  const handleSaveCompany = async () => {
+    try {
+      // Prepare company data for Supabase
+      const companyData: Database['public']['Tables']['companies']['Insert'] = {
+        nome: formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto,
+        cnpj: formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf,
+        setor: formData.setor,
+        tamanho: formData.tipoCadastro === 'pj' ? formData.tamanhoEmpresa : formData.tipoAtuacao,
+        faturamento: formData.tipoCadastro === 'pj' ? formData.faturamentoAnual : formData.rendaMensal,
+        website: formData.website || null,
+        telefone_contato: formData.telefoneContato,
+        email_contato: formData.emailContato,
+        cargo_contato: formData.tipoCadastro === 'pj' ? formData.cargoContato : formData.areaAtuacao,
+        desafios: formData.desafios,
+        objetivos: formData.objetivos,
+        mercado_atuacao: formData.mercadoAtuacao || null,
+        necessidades: formData.necessidades,
+        status: 'ativo',
+        progresso: 0
+      };
+
+      // Create company
+      const company = await CompanyService.create(companyData);
+
+      // Create stakeholders if any
+      if (formData.stakeholders.length > 0 && formData.stakeholders[0].nome) {
+        const stakeholdersData = formData.stakeholders
+          .filter(s => s.nome.trim() !== '')
+          .map(stakeholder => ({
+            company_id: company.id,
+            nome: stakeholder.nome,
+            cargo: stakeholder.cargo,
+            email: stakeholder.email,
+            funcao: stakeholder.funcao
+          }));
+
+        if (stakeholdersData.length > 0) {
+          await StakeholderService.createMultiple(stakeholdersData);
+        }
+      }
+
+      alert('Cliente cadastrado com sucesso!');
+      
+      // Verificar se é cliente grande e mostrar modal
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+        setShowResearchModal(true);
+        return; // Não navegar ainda, aguardar decisão do usuário
+      }
+      
+      // Navegar para lista de empresas
+      navigate('/empresas');
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar empresa:', error);
+      alert('Erro ao cadastrar cliente. Tente novamente.');
+    }
+  };
+
+  const handleAutoResearch = async () => {
   const handleAutoResearch = async () => {
     setIsResearching(true);
     try {
@@ -1087,7 +1144,8 @@ export default function CadastroEmpresa() {
           <div className="flex gap-2">
             {currentSection === sections.length - 1 ? (
               <button
-                type="submit"
+                type="button"
+                onClick={handleSaveCompany}
                 className="glass-button px-6 py-3 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
               >
                 <Save size={20} />
