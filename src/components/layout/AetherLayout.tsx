@@ -267,7 +267,7 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
         />
         
         <main className="flex-1 overflow-y-auto w-full">
-          <div className="container mx-auto px-4 lg:px-6 py-6 max-w-7xl">
+          <div className="h-full flex flex-col px-4 lg:px-6 py-6 max-w-7xl mx-auto">
             {children}
           </div>
         </main>
