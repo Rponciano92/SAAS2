@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2, Search, Globe, Lightbulb } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2, Search, Globe, Lightbulb, TrendingUp } from 'lucide-react';
 import { hybridAIService, HybridAIResponse, AISource } from '@/services/hybridAIService';
 import { getCompanyById } from '@/data/mockCompanies';
 
@@ -123,76 +123,6 @@ export default function AssistenteIA() {
       perguntaLower.includes('2025') ||
       perguntaLower.includes('benchmark')
     );
-      };
-    }
-
-    if (perguntaLower.includes('roi') || perguntaLower.includes('aumentar')) {
-      return {
-        conteudo: `🎯 **Estratégias para Aumentar ROI:**
-
-**Ações Imediatas (0-30 dias):**
-• Otimizar processos operacionais existentes
-• Implementar automações simples
-• Revisar estrutura de custos
-
-**Médio Prazo (1-3 meses):**
-• Desenvolver novos canais de receita
-• Melhorar eficiência da equipe de vendas
-• Implementar métricas de performance
-
-**Longo Prazo (3-12 meses):**
-• Investir em tecnologia e inovação
-• Expandir para novos mercados
-• Desenvolver parcerias estratégicas
-
-**ROI Esperado:** +25-40% em 6 meses
-
-Qual estratégia gostaria de explorar primeiro?`,
-        acoesSugeridas: ['Plano de implementação', 'Análise de custos', 'Projeção de resultados', 'Cronograma detalhado']
-      };
-    }
-
-    if (perguntaLower.includes('reunião') || perguntaLower.includes('preparar')) {
-      return {
-        conteudo: `📅 **Preparação de Reunião Inteligente:**
-
-**Agenda Sugerida:**
-1. Revisão de resultados (15 min)
-2. Discussão de desafios atuais (20 min)
-3. Apresentação de soluções (25 min)
-4. Definição de próximos passos (10 min)
-
-**Pontos-Chave para Abordar:**
-• Performance atual vs. metas
-• Oportunidades identificadas
-• Recursos necessários
-• Timeline de implementação
-
-**Perguntas Estratégicas:**
-• "Qual é a prioridade número 1 para os próximos 90 dias?"
-• "Que obstáculos vocês veem para alcançar as metas?"
-• "Como podemos medir o sucesso desta iniciativa?"
-
-**Materiais de Apoio:** Relatório executivo, dashboard de KPIs, benchmarks do setor
-
-Precisa de ajuda com algum aspecto específico da reunião?`,
-        acoesSugeridas: ['Criar apresentação', 'Gerar relatório', 'Definir KPIs', 'Cronograma de ações']
-      };
-    }
-
-    // Resposta genérica
-    return {
-      conteudo: `Entendi sua pergunta sobre "${pergunta}". Como seu assistente de consultoria especializado, posso ajudá-lo com:
-
-🎯 **Análises Estratégicas:** Avaliação de mercado, concorrência e oportunidades
-📊 **Insights Financeiros:** ROI, projeções e otimização de custos  
-🏢 **Gestão de Clientes:** Acompanhamento de projetos e relacionamento
-📈 **Relatórios Executivos:** Documentos profissionais e apresentações
-🤝 **Preparação de Reuniões:** Agendas, pontos-chave e materiais de apoio
-
-Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer insights mais direcionados.`,
-      acoesSugeridas: ['Ver empresas ativas', 'Gerar análise', 'Buscar metodologias', 'Agendar reunião']
-    };
   };
 
   const getSourceIcon = (fonte?: AISource) => {
