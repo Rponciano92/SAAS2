@@ -41,7 +41,7 @@ export class PerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-small-online',
           messages: [
             {
               role: 'system',
@@ -56,11 +56,9 @@ export class PerplexityService {
           temperature: 0.2,
           top_p: 0.9,
           return_citations: true,
-          search_domain_filter: ["perplexity.ai"],
           return_images: false,
           return_related_questions: true,
           search_recency_filter: "month",
-          top_k: 0,
           stream: false,
           presence_penalty: 0,
           frequency_penalty: 1
