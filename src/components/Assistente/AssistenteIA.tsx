@@ -230,7 +230,7 @@ export default function AssistenteIA() {
           <div className="px-4 py-2">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-100/50 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between p-2 transition-colors"
             >
               <span className="text-sm font-medium text-gray-700">Ações e Sugestões</span>
               <div className={`transform transition-transform ${sidebarOpen ? 'rotate-180' : ''}`}>
