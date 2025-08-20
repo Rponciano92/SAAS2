@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2 } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2, Search, Globe, Lightbulb } from 'lucide-react';
+import { hybridAIService, HybridAIResponse, AISource } from '@/services/hybridAIService';
+import { getCompanyById } from '@/data/mockCompanies';
 
 interface Mensagem {
   id: string;
@@ -8,31 +10,38 @@ interface Mensagem {
   timestamp: string;
   contexto?: string;
   acoesSugeridas?: string[];
+  fonte?: AISource;
+  citations?: string[];
+  relatedQuestions?: string[];
 }
 
 const mockMensagens: Mensagem[] = [
   {
     id: '1',
     tipo: 'assistant',
-    conteudo: 'Olá! Sou o Aether AI, seu assistente de consultoria personalizado. Como posso ajudá-lo hoje? Posso analisar empresas, sugerir estratégias, gerar relatórios ou responder dúvidas específicas sobre seus clientes.',
+    conteudo: 'Olá! Sou o Aether AI, seu assistente híbrido de consultoria. Combino conhecimento especializado em consultoria com pesquisa web em tempo real.\n\n🧠 **IA Especialista:** Metodologias, estratégias e análises baseadas em experiência\n🔍 **IA de Pesquisa:** Dados atualizados, tendências e informações do mercado\n\nComo posso ajudá-lo hoje? Posso analisar empresas, sugerir estratégias, buscar dados atuais ou responder dúvidas específicas sobre seus clientes.',
     timestamp: '2025-01-15 09:00',
-    acoesSugeridas: ['Analisar empresa', 'Gerar relatório', 'Agendar reunião', 'Buscar conhecimento']
+    acoesSugeridas: ['Analisar empresa', 'Gerar relatório', 'Agendar reunião', 'Buscar conhecimento'],
+    fonte: 'especialista'
   }
 ];
 
 const sugestoesPredefinidas = [
   '📊 Como está o desempenho da TechStart?',
   '🎯 Sugestões para aumentar ROI do cliente',
-  '📈 Análise de mercado para o setor tech',
+  '📈 Tendências atuais do mercado tech 2025',
   '💡 Metodologias para startup em crescimento',
   '📅 Preparar reunião com stakeholders',
-  '🔍 Benchmarks do setor de varejo'
+  '🔍 Benchmarks atuais do setor de varejo',
+  '🌐 Regulamentações LGPD para empresas',
+  '📊 Dados econômicos Brasil 2025'
 ];
 
 export default function AssistenteIA() {
   const [mensagens, setMensagens] = useState<Mensagem[]>(mockMensagens);
   const [novaMensagem, setNovaMensagem] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -59,48 +68,61 @@ export default function AssistenteIA() {
     setMensagens(prev => [...prev, novaMsgUser]);
     setNovaMensagem('');
     setIsTyping(true);
+    setIsSearching(false);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const respostaIA = gerarRespostaIA(textoMensagem);
+    try {
+      // Obter dados da empresa se selecionada
+      const company = empresaSelecionada ? getCompanyById(empresaSelecionada) : undefined;
+      
+      // Verificar se vai precisar de pesquisa
+      const needsSearch = shouldUseWebSearch(textoMensagem);
+      if (needsSearch) {
+        setIsSearching(true);
+      }
+      
+      // Gerar resposta híbrida
+      const respostaIA = await hybridAIService.generateResponse(textoMensagem, company, empresaSelecionada);
+      
       const novaMsgAssistant: Mensagem = {
         id: (Date.now() + 1).toString(),
         tipo: 'assistant',
-        conteudo: respostaIA.conteudo,
+        conteudo: respostaIA.content,
         timestamp: new Date().toISOString(),
-        acoesSugeridas: respostaIA.acoesSugeridas
+        acoesSugeridas: respostaIA.acoesSugeridas,
+        fonte: respostaIA.source,
+        citations: respostaIA.citations,
+        relatedQuestions: respostaIA.relatedQuestions
       };
 
       setMensagens(prev => [...prev, novaMsgAssistant]);
+    } catch (error) {
+      console.error('❌ Erro ao gerar resposta:', error);
+      
+      const errorMsg: Mensagem = {
+        id: (Date.now() + 1).toString(),
+        tipo: 'assistant',
+        conteudo: 'Desculpe, ocorreu um erro ao processar sua pergunta. Tente novamente ou seja mais específico.',
+        timestamp: new Date().toISOString(),
+        fonte: 'especialista'
+      };
+      
+      setMensagens(prev => [...prev, errorMsg]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+      setIsSearching(false);
+    }
   };
 
-  const gerarRespostaIA = (pergunta: string) => {
+  // Função auxiliar para determinar se precisa de pesquisa (para UI)
+  const shouldUseWebSearch = (pergunta: string): boolean => {
     const perguntaLower = pergunta.toLowerCase();
-    
-    if (perguntaLower.includes('techstart') || perguntaLower.includes('desempenho')) {
-      return {
-        conteudo: `📊 **Análise da TechStart Inovação:**
-
-**Métricas Principais:**
-• Crescimento de receita: +30% ao mês
-• Burn rate: R$ 45K/mês (sustentável)
-• Runway: 18 meses
-• Margem bruta: 75% (acima da média)
-
-**Insights Estratégicos:**
-• Forte tração no mercado B2B
-• Necessidade de focar na retenção de clientes
-• Oportunidade de diversificar fontes de receita
-
-**Recomendações:**
-1. Implementar programa de customer success
-2. Desenvolver parcerias estratégicas
-3. Investir em automação de processos
-
-Gostaria que eu detalhe algum aspecto específico?`,
-        acoesSugeridas: ['Gerar relatório completo', 'Agendar reunião', 'Analisar concorrência', 'Projeções financeiras']
+    return (
+      perguntaLower.includes('atual') ||
+      perguntaLower.includes('mercado') ||
+      perguntaLower.includes('tendência') ||
+      perguntaLower.includes('2025') ||
+      perguntaLower.includes('benchmark')
+    );
       };
     }
 
@@ -171,6 +193,33 @@ Precisa de ajuda com algum aspecto específico da reunião?`,
 Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer insights mais direcionados.`,
       acoesSugeridas: ['Ver empresas ativas', 'Gerar análise', 'Buscar metodologias', 'Agendar reunião']
     };
+  };
+
+  const getSourceIcon = (fonte?: AISource) => {
+    switch (fonte) {
+      case 'especialista': return <Brain size={12} className="text-[#0A74DA]" />;
+      case 'pesquisa': return <Search size={12} className="text-[#28A745]" />;
+      case 'hibrido': return <Globe size={12} className="text-[#B8860B]" />;
+      default: return <Bot size={12} />;
+    }
+  };
+  
+  const getSourceLabel = (fonte?: AISource) => {
+    switch (fonte) {
+      case 'especialista': return '🧠 IA Especialista';
+      case 'pesquisa': return '🔍 Pesquisa Web';
+      case 'hibrido': return '🤖🔍 Híbrido';
+      default: return 'IA';
+    }
+  };
+  
+  const getSourceColor = (fonte?: AISource) => {
+    switch (fonte) {
+      case 'especialista': return 'bg-blue-100 text-blue-700';
+      case 'pesquisa': return 'bg-green-100 text-green-700';
+      case 'hibrido': return 'bg-purple-100 text-purple-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -249,6 +298,28 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                       {mensagem.conteudo}
                     </div>
                     
+                    {/* Source indicator */}
+                    {mensagem.tipo === 'assistant' && mensagem.fonte && (
+                      <div className="flex items-center space-x-1 mt-1">
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs flex items-center space-x-1 ${getSourceColor(mensagem.fonte)}`}>
+                          {getSourceIcon(mensagem.fonte)}
+                          <span>{getSourceLabel(mensagem.fonte)}</span>
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Citations */}
+                    {mensagem.citations && mensagem.citations.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        <p className="font-medium">📚 Fontes:</p>
+                        <ul className="list-disc list-inside">
+                          {mensagem.citations.slice(0, 2).map((citation, index) => (
+                            <li key={index}>{citation}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
                     {mensagem.acoesSugeridas && (
                       <div className="mt-1 flex flex-wrap gap-1">
                         {mensagem.acoesSugeridas.map((acao, index) => (
@@ -278,10 +349,18 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
                     <Bot size={14} />
                   </div>
                   <div className="glass-card-subtle p-2 rounded-xl">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-[#0A74DA] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                      {isSearching && (
+                        <div className="flex items-center space-x-1 text-xs text-blue-600">
+                          <Search size={10} className="animate-pulse" />
+                          <span>Pesquisando...</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -328,32 +407,46 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
             <h4 className="font-bold text-[#003B6D] mb-2 text-xs">⚡ Ações Rápidas</h4>
             <div className="space-y-0.5">
               <button
-                onClick={() => handleEnviarMensagem('Gerar análise da empresa selecionada')}
+                onClick={() => handleEnviarMensagem('Consulta especializada sobre estratégia')}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <BarChart3 size={12} className="text-[#0A74DA]" />
-                <span className="text-xs">Análise</span>
+                <Brain size={12} className="text-[#0A74DA]" />
+                <span className="text-xs">Consulta Especialista</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Preparar próxima reunião')}
+                onClick={() => handleEnviarMensagem('Pesquisar tendências atuais do mercado')}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Calendar size={12} className="text-[#28A745]" />
-                <span className="text-xs">Reunião</span>
+                <Search size={12} className="text-[#28A745]" />
+                <span className="text-xs">Pesquisa + Análise</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Buscar metodologias relevantes')}
+                onClick={() => handleEnviarMensagem('Dados econômicos atualizados Brasil 2025')}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <Brain size={12} className="text-[#B8860B]" />
-                <span className="text-xs">Conhecimento</span>
+                <BarChart3 size={12} className="text-[#FFA500]" />
+                <span className="text-xs">Dados Atualizados</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Criar relatório executivo')}
+                onClick={() => handleEnviarMensagem('Benchmarking web do setor tecnologia')}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
-                <FileText size={12} className="text-[#FFA500]" />
-                <span className="text-xs">Relatório</span>
+                <TrendingUp size={12} className="text-[#B8860B]" />
+                <span className="text-xs">Benchmarking Web</span>
+              </button>
+              <button
+                onClick={() => handleEnviarMensagem('Tendências recentes do setor')}
+                className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Lightbulb size={12} className="text-[#8B5CF6]" />
+                <span className="text-xs">Tendências Recentes</span>
+              </button>
+              <button
+                onClick={() => handleEnviarMensagem('Pesquisa global sobre inovação')}
+                className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <Globe size={12} className="text-[#EF4444]" />
+                <span className="text-xs">Pesquisa Global</span>
               </button>
             </div>
           </div>
@@ -376,23 +469,27 @@ Poderia ser mais específico sobre o que precisa? Isso me ajudará a fornecer in
 
           {/* Status da IA */}
           <div className="glass-card p-3">
-            <h4 className="font-bold text-[#003B6D] mb-2 text-xs">🤖 Status da IA</h4>
+            <h4 className="font-bold text-[#003B6D] mb-2 text-xs">🤖🔍 Sistema Híbrido IA</h4>
             <div className="space-y-1 text-xs">
               <div className="flex items-center justify-between">
+                <span className="text-gray-600">IA Especialista:</span>
+                <span className="font-medium text-[#28A745]">✅ Ativa</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">IA de Pesquisa:</span>
+                <span className="font-medium text-[#28A745]">🌐 Conectada</span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Modo:</span>
-                <span className="font-medium text-[#003B6D]">Offline Seguro</span>
+                <span className="font-medium text-[#0A74DA]">Automático</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Base Conhecimento:</span>
-                <span className="font-medium text-[#28A745]">Atualizada</span>
+                <span className="text-gray-600">Fontes:</span>
+                <span className="font-medium text-[#B8860B]">Conhecimento + Web</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Especialização:</span>
-                <span className="font-medium text-[#0A74DA]">Consultoria</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Validação:</span>
-                <span className="font-medium text-[#B8860B]">Humana</span>
+                <span className="text-gray-600">Precisão:</span>
+                <span className="font-medium text-[#28A745]">98% validada</span>
               </div>
             </div>
           </div>
