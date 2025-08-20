@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CompanyService, StakeholderService } from '@/services/companyService';
+import { CompanyResearchService } from '@/services/companyResearchService';
+import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import type { Database } from '@/lib/supabase';
 
 interface FormData {
@@ -157,6 +159,9 @@ const funcaoOptions = [
 export default function CadastroEmpresa() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
+  const [showResearchModal, setShowResearchModal] = useState(false);
+  const [isResearching, setIsResearching] = useState(false);
+  const [researchData, setResearchData] = useState<any>(null);
   const [formData, setFormData] = useState<FormData>({
     tipoCadastro: 'pj',
     nomeEmpresa: '',
@@ -252,10 +257,55 @@ export default function CadastroEmpresa() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar se é cliente grande antes de salvar
+    const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+    if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+      setShowResearchModal(true);
+      return;
+    }
+
+    // Salvar normalmente se não for cliente grande
     handleSaveCompany();
   };
 
-  const handleSaveCompany = async () => {
+  // Nova função para pesquisa automática
+  const handleAutoResearch = async () => {
+    setIsResearching(true);
+    try {
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      const cnpj = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
+      
+      const research = await CompanyResearchService.researchCompany(companyName, cnpj);
+      setResearchData(research);
+      
+      // Completar dados do formulário com informações pesquisadas
+      if (research.stakeholders.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          stakeholders: research.stakeholders.map(s => ({
+            nome: s.name,
+            cargo: s.position,
+            email: '',
+            funcao: s.position
+          }))
+        }));
+      }
+      
+      setShowResearchModal(false);
+      await handleSaveCompany(research);
+      
+    } catch (error) {
+      console.error('Erro na pesquisa automática:', error);
+      alert('Erro na pesquisa automática. Salvando dados básicos...');
+      setShowResearchModal(false);
+      await handleSaveCompany();
+    } finally {
+      setIsResearching(false);
+    }
+  };
+
+  const handleSaveCompany = async (research: any = null) => {
     try {
       // Prepare company data for Supabase
       const companyData: Database['public']['Tables']['companies']['Insert'] = {
@@ -298,6 +348,12 @@ export default function CadastroEmpresa() {
 
       alert('Cliente cadastrado com sucesso!');
       navigate('/empresas');
+      
+      // Se há dados de pesquisa, salvar também (implementar conforme necessário)
+      if (research) {
+        console.log('📊 Dados de pesquisa obtidos:', research);
+        // Aqui você pode salvar os dados de pesquisa em uma tabela separada
+      }
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
       alert('Erro ao cadastrar cliente. Tente novamente.');
@@ -1052,6 +1108,15 @@ export default function CadastroEmpresa() {
           </div>
         </div>
       </form>
+      
+      {/* Modal de Confirmação de Pesquisa */}
+      <ResearchConfirmationModal
+        isOpen={showResearchModal}
+        onClose={() => setShowResearchModal(false)}
+        onConfirm={handleAutoResearch}
+        companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
+        isResearching={isResearching}
+      />
     </div>
   );
 }

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Search, Filter, Plus, Calendar, BarChart3, MessageSquare, Eye, Users, DollarSign, TrendingUp, Clock } from 'lucide-react';
+import { Building2, Search, Filter, Plus, Calendar, BarChart3, MessageSquare, Eye, Users, DollarSign, TrendingUp, Clock, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useCompanies } from '@/hooks/useSupabase';
+import { CompanyResearchService } from '@/services/companyResearchService';
 import type { Database } from '@/lib/supabase';
 
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -118,6 +119,7 @@ export default function GestaoEmpresas() {
   const [filtroTamanho, setFiltroTamanho] = useState('Todos');
   const [filtroStatus, setFiltroStatus] = useState('Todos');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
 
   // Convert Supabase companies to the expected format
   const empresas: Empresa[] = companies.map(company => ({
@@ -161,6 +163,33 @@ export default function GestaoEmpresas() {
     return avatars[setor] || '🏢';
   }
 
+  const handleGenerateDocument = async (company: Empresa) => {
+    try {
+      setGeneratingDoc(company.id);
+      
+      // Fazer pesquisa da empresa
+      const researchData = await CompanyResearchService.researchCompany(company.nome, company.id);
+      
+      // Gerar documento
+      const pdfBlob = await CompanyResearchService.generateCompanyDocument(researchData);
+      
+      // Download do arquivo
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${company.nome.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Erro ao gerar documento:', error);
+      alert('Erro ao gerar documento. Tente novamente.');
+    } finally {
+      setGeneratingDoc(null);
+    }
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo': return 'text-[#28A745] bg-[#28A745]/10';
@@ -337,18 +366,45 @@ export default function GestaoEmpresas() {
               <Eye size={16} className="text-[#0A74DA]" />
             </button>
             <button 
-              className="p-2 hover:bg-[#28A745]/10 rounded-lg transition-colors" 
+            <button 
+              onClick={() => handleGenerateDocument(empresa)}
+              disabled={generatingDoc === empresa.id}
+              className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors disabled:opacity-50" 
+              title="Gerar Relatório"
+            >
+              {generatingDoc === empresa.id ? (
+                <div className="w-4 h-4 border-2 border-[#FFA500] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download size={16} className="text-[#FFA500]" />
+              )}
+            </button>
+            <button className="p-2 hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Gerar Análise">
               title="Agendar Reunião"
               onClick={(e) => e.stopPropagation()}
             >
               <Calendar size={16} className="text-[#28A745]" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleGenerateDocument(empresa);
+              }}
+              disabled={generatingDoc === empresa.id}
+              className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors disabled:opacity-50" 
+              title="Gerar Relatório"
+            >
+              {generatingDoc === empresa.id ? (
+                <div className="w-4 h-4 border-2 border-[#FFA500] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download size={16} className="text-[#FFA500]" />
+              )}
             </button>
             <button 
               className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors" 
               title="Gerar Análise"
               onClick={(e) => e.stopPropagation()}
             >
-              <BarChart3 size={16} className="text-[#FFA500]" />
+              <BarChart3 size={16} className="text-[#B8860B]" />
             </button>
           </div>
         </div>
