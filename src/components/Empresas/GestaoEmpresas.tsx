@@ -324,6 +324,21 @@ export default function GestaoEmpresas() {
           <button className="p-2 hover:bg-[#28A745]/10 rounded-lg transition-colors" title="Agendar Reunião">
             <Calendar size={16} className="text-[#28A745]" />
           </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleGenerateDocument(empresa);
+            }}
+            disabled={generatingDoc === empresa.id}
+            className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors disabled:opacity-50" 
+            title="Gerar Relatório"
+          >
+            {generatingDoc === empresa.id ? (
+              <div className="w-4 h-4 border-2 border-[#FFA500] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Download size={16} className="text-[#FFA500]" />
+            )}
+          </button>
           <button className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors" title="Gerar Análise">
             <BarChart3 size={16} className="text-[#FFA500]" />
           </button>
