@@ -254,7 +254,7 @@ export default function GestaoEmpresas() {
     <div 
       key={empresa.id} 
       className="glass-card p-6 hover:transform hover:scale-105 transition-all duration-300 cursor-pointer"
-      onClick={() => navigate(`/empresas/${empresa.id}/dashboard`)}
+      onClick={() => navigate(`/empresas/${empresa.id}`)}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
