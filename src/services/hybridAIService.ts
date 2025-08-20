@@ -1,5 +1,5 @@
 // Hybrid AI Service - Combina IA Especialista + IA de Pesquisa
-import { perplexityService, PerplexityResponse } from './perplexityService';
+import { PerplexityService, PerplexityResponse } from './perplexityService';
 import { EmpresaDetalhes } from '@/types/company';
 
 export type AISource = 'especialista' | 'pesquisa' | 'hibrido';
@@ -44,7 +44,7 @@ export class HybridAIService {
 
       // 3. Acionar IA de Pesquisa
       console.log('🔍 Acionando IA de Pesquisa...');
-      const searchResult = await this.performWebSearch(pergunta, company);
+      const searchResult = await PerplexityService.searchWeb(pergunta);
       
       // 4. Combinar respostas
       const hybridResponse = this.combineResponses(respostaEspecialista, searchResult, pergunta);
@@ -149,59 +149,27 @@ export class HybridAIService {
   }
 
   /**
-   * Realiza pesquisa web baseada no tipo de pergunta
-   */
-  private async performWebSearch(pergunta: string, company?: EmpresaDetalhes): Promise<PerplexityResponse> {
-    const perguntaLower = pergunta.toLowerCase();
-    
-    // Pesquisa específica por tipo
-    if (perguntaLower.includes('mercado') || perguntaLower.includes('tendência')) {
-      const sector = company?.setor || this.extractSectorFromQuery(pergunta);
-      return perplexityService.searchMarketTrends(sector);
-    }
-    
-    if (perguntaLower.includes('empresa') && !perguntaLower.includes('techstart')) {
-      const companyName = this.extractCompanyFromQuery(pergunta);
-      return perplexityService.searchCompanyInfo(companyName);
-    }
-    
-    if (perguntaLower.includes('regulamentação') || perguntaLower.includes('lei')) {
-      const topic = this.extractTopicFromQuery(pergunta);
-      return perplexityService.searchRegulations(topic);
-    }
-    
-    if (perguntaLower.includes('benchmark')) {
-      const sector = company?.setor || this.extractSectorFromQuery(pergunta);
-      const metric = this.extractMetricFromQuery(pergunta);
-      return perplexityService.searchBenchmarks(sector, metric);
-    }
-    
-    // Pesquisa geral
-    return perplexityService.searchWeb(pergunta, company ? `Empresa: ${company.nome}, Setor: ${company.setor}` : undefined);
-  }
-
-  /**
    * Combina respostas da IA Especialista e IA de Pesquisa
    */
   private combineResponses(
     especialistaResponse: any, 
-    searchResult: PerplexityResponse, 
+    searchResult: string, 
     pergunta: string
   ): string {
     const perguntaLower = pergunta.toLowerCase();
     
     // Se a pergunta é sobre tendências/mercado, priorizar pesquisa
     if (perguntaLower.includes('tendência') || perguntaLower.includes('mercado')) {
-      return `🔍 **Dados Atualizados do Mercado:**\n\n${searchResult.content}\n\n🧠 **Análise Especializada:**\n\n${especialistaResponse.content}\n\n💡 **Recomendação Integrada:** Considerando tanto os dados atuais quanto as metodologias de consultoria, sugiro combinar essas informações para uma estratégia mais robusta.`;
+      return `🔍 **Dados Atualizados do Mercado:**\n\n${searchResult}\n\n🧠 **Análise Especializada:**\n\n${especialistaResponse.content}\n\n💡 **Recomendação Integrada:** Considerando tanto os dados atuais quanto as metodologias de consultoria, sugiro combinar essas informações para uma estratégia mais robusta.`;
     }
     
     // Se a pergunta é sobre empresa específica
     if (perguntaLower.includes('empresa')) {
-      return `🧠 **Conhecimento Especializado:**\n\n${especialistaResponse.content}\n\n🔍 **Informações Atualizadas:**\n\n${searchResult.content}\n\n📊 **Síntese:** Combinando minha expertise em consultoria com dados atuais do mercado para fornecer uma visão completa.`;
+      return `🧠 **Conhecimento Especializado:**\n\n${especialistaResponse.content}\n\n🔍 **Informações Atualizadas:**\n\n${searchResult}\n\n📊 **Síntese:** Combinando minha expertise em consultoria com dados atuais do mercado para fornecer uma visão completa.`;
     }
     
     // Combinação padrão
-    return `🤖🔍 **Resposta Híbrida:**\n\n**Análise Especializada:**\n${especialistaResponse.content}\n\n**Dados Atualizados:**\n${searchResult.content}\n\n**Conclusão:** Esta resposta combina conhecimento especializado em consultoria com informações atualizadas do mercado.`;
+    return `🤖🔍 **Resposta Híbrida:**\n\n**Análise Especializada:**\n${especialistaResponse.content}\n\n**Dados Atualizados:**\n${searchResult}\n\n**Conclusão:** Esta resposta combina conhecimento especializado em consultoria com informações atualizadas do mercado.`;
   }
 
   /**
