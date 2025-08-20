@@ -47,11 +47,11 @@ export default function ResearchConfirmationModal({
               <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-amber-800">
-                  Cliente Grande Detectado
+                  Pesquisa Automática Disponível
                 </p>
                 <p className="text-sm text-amber-700 mt-1">
-                  Identificamos que <strong>{companyName}</strong> é uma empresa de grande porte. 
-                  Deseja que façamos uma pesquisa automática na internet para completar as informações?
+                  Detectamos que <strong>{companyName}</strong> pode se beneficiar de uma pesquisa automática. 
+                  Deseja que nossa IA busque informações adicionais na internet para enriquecer o perfil?
                 </p>
               </div>
             </div>

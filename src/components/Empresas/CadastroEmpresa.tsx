@@ -208,13 +208,26 @@ export default function CadastroEmpresa() {
   const handleInputChange = (field: string, value: any, nested?: string) => {
     setFormData((prev) => {
       if (nested) {
-        return {
+        const newData = {
           ...prev,
           [nested]: {
             ...prev[nested as keyof FormData],
             [field]: value,
           },
         };
+        
+        // Verificar se completou a personalidade da IA
+        if (nested === 'configuracaoIA' && field === 'personalidade' && value.trim().length > 50) {
+          // Verificar se é cliente grande e ainda não mostrou o modal
+          const companyName = prev.tipoCadastro === 'pj' ? prev.nomeEmpresa : prev.nomeCompleto;
+          if (CompanyResearchService.isLargeClient(prev) && companyName.trim() && !showResearchModal) {
+            setTimeout(() => {
+              setShowResearchModal(true);
+            }, 1000); // Delay de 1 segundo para não interromper a digitação
+          }
+        }
+        
+        return newData;
       }
       return { ...prev, [field]: value };
     });
