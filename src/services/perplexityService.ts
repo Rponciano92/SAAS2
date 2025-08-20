@@ -54,6 +54,12 @@ export class PerplexityService {
           ],
           max_tokens: 1000,
           temperature: 0.2
+        }
+        )
+      }
+      )
+    }
+  }
 
   async searchRegulations(topic: string): Promise<PerplexityResponse> {
     const query = `Regulamentações e compliance sobre ${topic} no Brasil. Leis atuais, mudanças recentes e impactos para empresas.`;
