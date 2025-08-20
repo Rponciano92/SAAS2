@@ -372,36 +372,4 @@ export default function GestaoEmpresas() {
       </div>
     </div>
   );
-
-  async function handleDeleteCompany(companyId: string, companyName: string) {
-    const confirmed = window.confirm(
-      `⚠️ ATENÇÃO: Esta ação é irreversível!\n\n` +
-      `Tem certeza que deseja excluir "${companyName}"?\n\n` +
-      `Todos os dados serão perdidos:\n` +
-      `• Informações da empresa\n` +
-      `• Stakeholders cadastrados\n` +
-      `• Histórico de interações\n` +
-      `• Configurações de IA\n\n` +
-      `Clique OK para confirmar a exclusão.`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setDeletingId(companyId);
-      
-      await CompanyService.delete(companyId);
-      
-      alert(`✅ Cliente "${companyName}" excluído com sucesso!`);
-      
-      // Recarregar lista
-      await refetch();
-      
-    } catch (error) {
-      console.error('Erro ao excluir empresa:', error);
-      alert(`❌ Erro ao excluir cliente: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setDeletingId(null);
-    }
-  }
 }
