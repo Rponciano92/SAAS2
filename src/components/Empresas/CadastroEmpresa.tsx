@@ -350,7 +350,7 @@ export default function CadastroEmpresa() {
       }
       
       // Navegar para lista de empresas
-      navigate('/');
+      navigate('/empresas');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
