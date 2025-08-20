@@ -208,26 +208,13 @@ export default function CadastroEmpresa() {
   const handleInputChange = (field: string, value: any, nested?: string) => {
     setFormData((prev) => {
       if (nested) {
-        const newData = {
+        return {
           ...prev,
           [nested]: {
             ...prev[nested as keyof FormData],
             [field]: value,
           },
         };
-        
-        // Verificar se completou a personalidade da IA
-        if (nested === 'configuracaoIA' && field === 'personalidade' && value.trim().length > 50) {
-          // Verificar se é cliente grande e ainda não mostrou o modal
-          const companyName = prev.tipoCadastro === 'pj' ? prev.nomeEmpresa : prev.nomeCompleto;
-          if (CompanyResearchService.isLargeClient(prev) && companyName.trim() && !showResearchModal) {
-            setTimeout(() => {
-              setShowResearchModal(true);
-            }, 1000); // Delay de 1 segundo para não interromper a digitação
-          }
-        }
-        
-        return newData;
       }
       return { ...prev, [field]: value };
     });
@@ -271,8 +258,8 @@ export default function CadastroEmpresa() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Sempre salvar primeiro, depois verificar se precisa de pesquisa
-    handleSaveCompany(null, true); // true = verificar pesquisa após salvar
+    // Salvar empresa e verificar se precisa mostrar modal de pesquisa
+    handleSaveCompany();
   };
 
   // Nova função para pesquisa automática
@@ -311,7 +298,7 @@ export default function CadastroEmpresa() {
     }
   };
 
-  const handleSaveCompany = async (research: any = null, checkForResearch: boolean = false) => {
+  const handleSaveCompany = async () => {
     try {
       // Prepare company data for Supabase
       const companyData: Database['public']['Tables']['companies']['Insert'] = {
@@ -354,13 +341,11 @@ export default function CadastroEmpresa() {
 
       alert('Cliente cadastrado com sucesso!');
       
-      // Verificar se é cliente grande APÓS salvar
-      if (checkForResearch) {
-        const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-        if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
-          setShowResearchModal(true);
-          return; // Não navegar ainda, aguardar decisão do usuário
-        }
+      // Verificar se é cliente grande e mostrar modal
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+        setShowResearchModal(true);
+        return; // Não navegar ainda, aguardar decisão do usuário
       }
       
       // Navegar para lista de empresas
