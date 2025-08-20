@@ -190,6 +190,7 @@ export default function GestaoEmpresas() {
       setGeneratingDoc(null);
     }
   };
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo': return 'text-[#28A745] bg-[#28A745]/10';
@@ -366,19 +367,7 @@ export default function GestaoEmpresas() {
               <Eye size={16} className="text-[#0A74DA]" />
             </button>
             <button 
-            <button 
-              onClick={() => handleGenerateDocument(empresa)}
-              disabled={generatingDoc === empresa.id}
-              className="p-2 hover:bg-[#FFA500]/10 rounded-lg transition-colors disabled:opacity-50" 
-              title="Gerar Relatório"
-            >
-              {generatingDoc === empresa.id ? (
-                <div className="w-4 h-4 border-2 border-[#FFA500] border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Download size={16} className="text-[#FFA500]" />
-              )}
-            </button>
-            <button className="p-2 hover:bg-[#B8860B]/10 rounded-lg transition-colors" title="Gerar Análise">
+              className="p-2 hover:bg-[#28A745]/10 rounded-lg transition-colors" 
               title="Agendar Reunião"
               onClick={(e) => e.stopPropagation()}
             >
