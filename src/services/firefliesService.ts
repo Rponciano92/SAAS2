@@ -332,8 +332,8 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
       return getManualInstructions();
     }
 
-    // USAR API OFICIAL DO FIREFLIES - addToLiveMeeting
-    const result = await addBotToLiveMeeting(meetingLink, meetingTitle, language, attendees);
+    // ✅ CORREÇÃO: Usar Edge Function com método POST correto
+    const result = await callEdgeFunctionJoinMeeting(meetingLink, meetingTitle, language, attendees);
     
     if (result.success) {
       logDebugInfo('Automatic Join Success', result);
@@ -395,9 +395,83 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
 }
 
 /**
- * Função que usa a API oficial addToLiveMeeting do Fireflies
- * FAZ O BOT ENTRAR AUTOMATICAMENTE NO LINK DA REUNIÃO
- * VERSÃO CORRIGIDA - FORMATO SIMPLES DA DOCUMENTAÇÃO
+ * ✅ NOVA FUNÇÃO: Chama a Edge Function com método POST correto
+ */
+async function callEdgeFunctionJoinMeeting(meetingLink: string, meetingTitle: string, language: string, attendees: any[] = []) {
+  try {
+    // Obter URL do Supabase das variáveis de ambiente
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Variáveis de ambiente do Supabase não configuradas');
+    }
+    
+    const edgeFunctionUrl = `${supabaseUrl}/functions/v1/fireflies-webhook/join-meeting`;
+    
+    logDebugInfo('Calling Edge Function', {
+      url: edgeFunctionUrl,
+      method: 'POST',
+      body: { meetingUrl: meetingLink, title: meetingTitle, language, attendees }
+    });
+    
+    // ✅ CORREÇÃO PRINCIPAL: Usar POST com corpo JSON
+    const response = await fetch(edgeFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`
+      },
+      body: JSON.stringify({
+        meetingUrl: meetingLink,
+        title: meetingTitle,
+        language: language,
+        attendees: attendees
+      })
+    });
+    
+    logDebugInfo('Edge Function Response', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      logDebugInfo('Edge Function Error', {
+        status: response.status,
+        body: errorText
+      });
+      
+      return {
+        success: false,
+        error: `Erro na Edge Function: ${response.status}`,
+        details: errorText
+      };
+    }
+    
+    const result = await response.json();
+    logDebugInfo('Edge Function Success', result);
+    
+    return result;
+    
+  } catch (error) {
+    logDebugInfo('Edge Function Call Failed', {
+      error: error.message,
+      stack: error.stack
+    });
+    
+    return {
+      success: false,
+      error: 'Erro de conexão com Edge Function',
+      details: error.message
+    };
+  }
+}
+
+/**
+ * ✅ MANTIDA: Função original para fallback direto à API (se necessário)
+ * Agora é usada apenas como backup se a Edge Function falhar
  */
 async function addBotToLiveMeeting(meetingLink: string, title: string, language: string, attendees: any[] = []) {
   try {
