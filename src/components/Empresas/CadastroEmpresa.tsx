@@ -258,15 +258,8 @@ export default function CadastroEmpresa() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificar se é cliente grande antes de salvar
-    const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-    if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
-      setShowResearchModal(true);
-      return;
-    }
-
-    // Salvar normalmente se não for cliente grande
-    handleSaveCompany();
+    // Sempre salvar primeiro, depois verificar se precisa de pesquisa
+    handleSaveCompany(null, true); // true = verificar pesquisa após salvar
   };
 
   // Nova função para pesquisa automática
@@ -293,19 +286,19 @@ export default function CadastroEmpresa() {
       }
       
       setShowResearchModal(false);
-      await handleSaveCompany(research);
+      // Pesquisa já foi feita, apenas salvar os dados de pesquisa
+      console.log('📊 Dados de pesquisa obtidos:', research);
       
     } catch (error) {
       console.error('Erro na pesquisa automática:', error);
       alert('Erro na pesquisa automática. Salvando dados básicos...');
       setShowResearchModal(false);
-      await handleSaveCompany();
     } finally {
       setIsResearching(false);
     }
   };
 
-  const handleSaveCompany = async (research: any = null) => {
+  const handleSaveCompany = async (research: any = null, checkForResearch: boolean = false) => {
     try {
       // Prepare company data for Supabase
       const companyData: Database['public']['Tables']['companies']['Insert'] = {
@@ -347,13 +340,19 @@ export default function CadastroEmpresa() {
       }
 
       alert('Cliente cadastrado com sucesso!');
+      
+      // Verificar se é cliente grande APÓS salvar
+      if (checkForResearch) {
+        const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+        if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+          setShowResearchModal(true);
+          return; // Não navegar ainda, aguardar decisão do usuário
+        }
+      }
+      
+      // Navegar para lista de empresas
       navigate('/empresas');
       
-      // Se há dados de pesquisa, salvar também (implementar conforme necessário)
-      if (research) {
-        console.log('📊 Dados de pesquisa obtidos:', research);
-        // Aqui você pode salvar os dados de pesquisa em uma tabela separada
-      }
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
       alert('Erro ao cadastrar cliente. Tente novamente.');
