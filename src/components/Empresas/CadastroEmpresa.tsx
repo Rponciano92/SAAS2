@@ -286,10 +286,14 @@ export default function CadastroEmpresa() {
       // Pesquisa já foi feita, apenas salvar os dados de pesquisa
       console.log('📊 Dados de pesquisa obtidos:', research);
       
+      // Navegar para dashboard após pesquisa
+      navigate('/');
+      
     } catch (error) {
       console.error('Erro na pesquisa automática:', error);
       alert('Erro na pesquisa automática. Salvando dados básicos...');
       setShowResearchModal(false);
+      navigate('/');
     } finally {
       setIsResearching(false);
     }
@@ -346,7 +350,7 @@ export default function CadastroEmpresa() {
       }
       
       // Navegar para lista de empresas
-      navigate('/empresas');
+      navigate('/');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);

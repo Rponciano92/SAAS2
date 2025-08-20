@@ -87,11 +87,7 @@ export default function ResearchConfirmationModal({
             onClick={onClose}
             disabled={isResearching}
             className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-            onClick={() => {
-              onClose();
-              // Navegar para lista após fechar modal
-              window.location.href = '/empresas';
-            }}
+            onClick={onClose}
           >
             Finalizar Cadastro
           </button>
