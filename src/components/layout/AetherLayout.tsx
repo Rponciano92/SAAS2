@@ -112,18 +112,18 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-[#003B6D] rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center p-1">
                     <img 
                       src="/1 copy.png" 
                       alt="Aether AI Logo" 
-                      className="w-full h-full object-contain p-1"
+                      className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#B8860B] to-[#DAA520] rounded-full border-2 border-[#003B6D]"></div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-[#B8860B] to-[#DAA520] rounded-full border border-[#003B6D]"></div>
                 </div>
                 <div>
-                  <span className="text-white font-bold text-lg">AETHER AI</span>
-                  <p className="text-white/70 text-xs">Assistente Definitivo</p>
+                  <div className="text-white font-bold text-lg leading-tight">AETHER AI</div>
+                  <div className="text-white/70 text-xs leading-tight">Assistente Definitivo</div>
                 </div>
               </div>
               <button
