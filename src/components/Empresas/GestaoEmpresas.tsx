@@ -374,7 +374,6 @@ export default function GestaoEmpresas() {
               <Calendar size={16} className="text-[#28A745]" />
             </button>
             <button
-              onClick={(e) => {
                 e.stopPropagation();
                 handleGenerateDocument(empresa);
               }}
