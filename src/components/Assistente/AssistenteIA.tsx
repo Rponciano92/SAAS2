@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2, Search, Globe, Lightbulb, TrendingUp } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Zap, Brain, FileText, BarChart3, Calendar, Building2, Search, Globe, Lightbulb, TrendingUp, Menu, X } from 'lucide-react';
 import { hybridAIService, HybridAIResponse, AISource } from '@/services/hybridAIService';
 import { getCompanyById } from '@/data/mockCompanies';
 
@@ -43,6 +43,7 @@ export default function AssistenteIA() {
   const [isTyping, setIsTyping] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -178,7 +179,7 @@ export default function AssistenteIA() {
             <select
               value={empresaSelecionada}
               onChange={(e) => setEmpresaSelecionada(e.target.value)}
-              className="glass-input px-2 py-1 text-[#003B6D] rounded-lg text-xs"
+              className="glass-input px-2 py-1 text-[#003B6D] rounded-lg text-xs hidden md:block"
             >
               <option value="">Contexto Geral</option>
               <option value="techstart">🚀 TechStart Inovação</option>
@@ -187,16 +188,43 @@ export default function AssistenteIA() {
               <option value="fintech">💰 FinTech Solutions</option>
             </select>
 
-            <div className="flex items-center space-x-2 text-xs">
+            <div className="flex items-center space-x-2 text-xs hidden md:flex">
               <div className="w-2 h-2 bg-[#28A745] rounded-full animate-pulse"></div>
               <span className="text-[#28A745] font-medium">IA Online</span>
+            </div>
+            
+            {/* Mobile controls */}
+            <div className="flex items-center space-x-2 md:hidden">
+              <select
+                value={empresaSelecionada}
+                onChange={(e) => setEmpresaSelecionada(e.target.value)}
+                className="glass-input px-2 py-1 text-[#003B6D] rounded-lg text-xs w-32"
+              >
+                <option value="">Geral</option>
+                <option value="techstart">TechStart</option>
+                <option value="retailmax">RetailMax</option>
+                <option value="innovacorp">InnovaCorp</option>
+                <option value="fintech">FinTech</option>
+              </select>
+              
+              <div className="flex items-center space-x-1 text-xs">
+                <div className="w-2 h-2 bg-[#28A745] rounded-full animate-pulse"></div>
+                <span className="text-[#28A745] font-medium text-xs">Online</span>
+              </div>
+              
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+              >
+                <Menu size={18} />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 flex gap-3 min-h-0 overflow-hidden">
+      <div className="flex-1 flex gap-3 min-h-0 overflow-hidden relative">
         {/* Messages Area */}
         <div className="flex-1 glass-card flex flex-col min-h-0 overflow-hidden">
           {/* Messages */}
@@ -331,7 +359,25 @@ export default function AssistenteIA() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-64 space-y-2 flex-shrink-0 overflow-hidden">
+        <div className={`
+          w-64 space-y-2 flex-shrink-0 overflow-hidden
+          md:block
+          ${sidebarOpen ? 'block' : 'hidden'}
+          md:relative absolute top-0 right-0 h-full z-10 md:z-auto
+          bg-white md:bg-transparent
+          shadow-lg md:shadow-none
+          border-l border-gray-200 md:border-none
+        `}>
+          {/* Mobile close button */}
+          <div className="md:hidden flex justify-end p-2">
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X size={18} className="text-gray-600" />
+            </button>
+          </div>
+          
           {/* Quick Actions */}
           <div className="glass-card p-3">
             <h4 className="font-bold text-[#003B6D] mb-2 text-xs">⚡ Ações Rápidas</h4>
@@ -339,40 +385,59 @@ export default function AssistenteIA() {
               <button
                 onClick={() => handleEnviarMensagem('Consulta especializada sobre estratégia')}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                onClick={() => {
+                  handleEnviarMensagem('Consulta especializada sobre estratégia');
+                  setSidebarOpen(false);
+                }}
               >
                 <Brain size={12} className="text-[#0A74DA]" />
                 <span className="text-xs">Consulta Especialista</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Pesquisar tendências atuais do mercado')}
+                onClick={() => {
+                  handleEnviarMensagem('Pesquisar tendências atuais do mercado');
+                  setSidebarOpen(false);
+                }}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <Search size={12} className="text-[#28A745]" />
                 <span className="text-xs">Pesquisa + Análise</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Dados econômicos atualizados Brasil 2025')}
+                onClick={() => {
+                  handleEnviarMensagem('Dados econômicos atualizados Brasil 2025');
+                  setSidebarOpen(false);
+                }}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <BarChart3 size={12} className="text-[#FFA500]" />
                 <span className="text-xs">Dados Atualizados</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Benchmarking web do setor tecnologia')}
+                onClick={() => {
+                  handleEnviarMensagem('Benchmarking web do setor tecnologia');
+                  setSidebarOpen(false);
+                }}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <TrendingUp size={12} className="text-[#B8860B]" />
                 <span className="text-xs">Benchmarking Web</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Tendências recentes do setor')}
+                onClick={() => {
+                  handleEnviarMensagem('Tendências recentes do setor');
+                  setSidebarOpen(false);
+                }}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <Lightbulb size={12} className="text-[#8B5CF6]" />
                 <span className="text-xs">Tendências Recentes</span>
               </button>
               <button
-                onClick={() => handleEnviarMensagem('Pesquisa global sobre inovação')}
+                onClick={() => {
+                  handleEnviarMensagem('Pesquisa global sobre inovação');
+                  setSidebarOpen(false);
+                }}
                 className="w-full text-left p-1.5 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <Globe size={12} className="text-[#EF4444]" />
@@ -388,7 +453,10 @@ export default function AssistenteIA() {
               {sugestoesPredefinidas.map((sugestao, index) => (
                 <button
                   key={index}
-                  onClick={() => handleEnviarMensagem(sugestao)}
+                  onClick={() => {
+                    handleEnviarMensagem(sugestao);
+                    setSidebarOpen(false);
+                  }}
                   className="w-full text-left p-1 hover:bg-white/20 rounded-lg transition-colors text-xs text-gray-700"
                 >
                   {sugestao}
@@ -431,7 +499,10 @@ export default function AssistenteIA() {
               {['TechStart Inovação', 'RetailMax Varejo', 'FinTech Solutions'].map((empresa, index) => (
                 <button
                   key={index}
-                  onClick={() => handleEnviarMensagem(`Analisar ${empresa}`)}
+                  onClick={() => {
+                    handleEnviarMensagem(`Analisar ${empresa}`);
+                    setSidebarOpen(false);
+                  }}
                   className="w-full text-left p-1 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
                 >
                   <Building2 size={10} className="text-[#0A74DA]" />
@@ -441,6 +512,14 @@ export default function AssistenteIA() {
             </div>
           </div>
         </div>
+        
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-5"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
       </div>
     </div>
   );
