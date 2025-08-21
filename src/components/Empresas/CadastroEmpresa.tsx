@@ -233,9 +233,15 @@ export default function CadastroEmpresa() {
 
   const handleAutoResearch = async () => {
     setIsResearching(true);
+    setShowResearchModal(false);
+    
     try {
       const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
       const cnpj = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
+      
+      if (!companyName.trim()) {
+        throw new Error('Nome da empresa é obrigatório para pesquisa');
+      }
       
       const research = await CompanyResearchService.researchCompany(companyName, cnpj);
       setResearchData(research);
@@ -244,15 +250,22 @@ export default function CadastroEmpresa() {
       const documentService = new DocumentGeneratorService();
       const document = await documentService.generateCompanyReport(companyName, research);
       
-      // Trigger download
-      const url = URL.createObjectURL(document);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Trigger download - verificar contexto do browser
+      if (typeof window !== 'undefined' && window.document) {
+        try {
+          const url = URL.createObjectURL(document);
+          const a = window.document.createElement('a');
+          a.href = url;
+          a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
+          window.document.body.appendChild(a);
+          a.click();
+          window.document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (downloadError) {
+          console.error('Erro no download:', downloadError);
+          alert('PDF gerado com sucesso, mas houve problema no download automático.');
+        }
+      }
       
       // Completar dados do formulário com stakeholders pesquisados
       if (research.stakeholders.length > 0) {
@@ -267,16 +280,23 @@ export default function CadastroEmpresa() {
         }));
       }
       
-      setShowResearchModal(false);
-      
       alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente. Dados dos stakeholders foram preenchidos automaticamente.');
       navigate('/');
       
     } catch (error) {
       console.error('Erro na pesquisa automática:', error);
-      alert('❌ Erro na pesquisa automática. Salvando dados básicos...');
-      setShowResearchModal(false);
-      navigate('/');
+      
+      // Mostrar erro específico para o usuário
+      if (error.message.includes('Rate limit') || error.message.includes('⏳')) {
+        alert('⏳ Muitas pesquisas em pouco tempo. Os dados básicos foram salvos. Tente a pesquisa novamente em alguns minutos.');
+      } else if (error.message.includes('API key') || error.message.includes('🔑')) {
+        alert('🔑 Problema com a configuração da API. Os dados básicos foram salvos.');
+      } else {
+        alert(`❌ Erro na pesquisa automática: ${error.message}\n\nOs dados básicos foram salvos com sucesso.`);
+      }
+      
+      // Navegar mesmo com erro na pesquisa
+      navigate('/empresas');
     } finally {
       setIsResearching(false);
     }
@@ -284,6 +304,8 @@ export default function CadastroEmpresa() {
 
   const handleSaveCompany = async () => {
     try {
+      console.log('💾 Iniciando salvamento da empresa...');
+      
       // Prepare company data for Supabase
       const companyData: Database['public']['Tables']['companies']['Insert'] = {
         nome: formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto,
@@ -303,8 +325,11 @@ export default function CadastroEmpresa() {
         progresso: 0
       };
 
+      console.log('📤 Dados preparados para Supabase:', companyData);
+
       // Create company
       const company = await CompanyService.create(companyData);
+      console.log('✅ Empresa criada com sucesso:', company);
 
       // Create stakeholders if any
       if (formData.stakeholders.length > 0 && formData.stakeholders[0].nome) {
@@ -320,25 +345,72 @@ export default function CadastroEmpresa() {
 
         if (stakeholdersData.length > 0) {
           await StakeholderService.createMultiple(stakeholdersData);
+          console.log('✅ Stakeholders criados com sucesso');
         }
       }
 
-      alert('Cliente cadastrado com sucesso!');
+      console.log('🎉 Cadastro concluído com sucesso!');
       
       // Verificar se é cliente grande e mostrar modal
       const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+      
+      // Melhorar detecção de empresa grande
+      const isLargeCompany = this.detectLargeCompany(formData, companyName);
+      
+      if (isLargeCompany && companyName.trim()) {
+        alert('✅ Cliente cadastrado com sucesso!');
         setShowResearchModal(true);
         return; // Não navegar ainda, aguardar decisão do usuário
       }
       
+      alert('✅ Cliente cadastrado com sucesso!');
       // Navegar para lista de empresas
       navigate('/empresas');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
-      alert('Erro ao cadastrar cliente. Tente novamente.');
+      
+      // Mostrar erro específico
+      if (error.message.includes('duplicate key')) {
+        alert('❌ Erro: CNPJ/CPF já cadastrado no sistema.');
+      } else if (error.message.includes('violates not-null')) {
+        alert('❌ Erro: Campos obrigatórios não preenchidos.');
+      } else {
+        alert(`❌ Erro ao cadastrar cliente: ${error.message}`);
+      }
     }
+  };
+  
+  // Função melhorada para detectar empresa grande
+  const detectLargeCompany = (data: any, companyName: string): boolean => {
+    const name = companyName.toLowerCase();
+    const sector = data.setor?.toLowerCase() || '';
+    const size = data.tipoCadastro === 'pj' ? data.tamanhoEmpresa : data.tipoAtuacao;
+    const revenue = data.tipoCadastro === 'pj' ? data.faturamentoAnual : data.rendaMensal;
+    
+    // Indicadores de empresa grande
+    const largeIndicators = [
+      'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc',
+      'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações'
+    ];
+    
+    const hasLargeIndicators = largeIndicators.some(indicator => 
+      name.includes(indicator) || sector.includes(indicator)
+    );
+    
+    const isLargeSize = size && (
+      size.includes('Grande') || 
+      size.includes('Corporação') || 
+      size.includes('1000+')
+    );
+    
+    const isHighRevenue = revenue && (
+      revenue.includes('300 mi') || 
+      revenue.includes('1 bi') || 
+      revenue.includes('Acima')
+    );
+    
+    return hasLargeIndicators || isLargeSize || isHighRevenue;
   };
 
   const nextSection = () => {
@@ -1045,8 +1117,28 @@ export default function CadastroEmpresa() {
           }}
           onConfirm={handleAutoResearch}
           isLoading={isResearching}
+          isLoading={isResearching}
           companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
         />
+      )}
+      
+      {/* Loading Modal para Pesquisa */}
+      {isResearching && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A74DA]"></div>
+              <div>
+                <h3 className="text-lg font-semibold text-[#003B6D]">
+                  🔍 Pesquisando empresa...
+                </h3>
+                <p className="text-gray-600">
+                  Coletando informações da internet. Isso pode levar alguns minutos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -5,6 +5,7 @@ interface ResearchConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
   companyName: string;
   isResearching: boolean;
 }
@@ -13,6 +14,7 @@ export default function ResearchConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
+  isLoading = false,
   companyName,
   isResearching
 }: ResearchConfirmationModalProps) {
@@ -25,10 +27,14 @@ export default function ResearchConfirmationModal({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Search className="w-5 h-5 text-blue-600" />
+              {isResearching ? (
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Search className="w-5 h-5 text-blue-600" />
+              )}
             </div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Pesquisa Automática Detectada
+              {isResearching ? 'Pesquisando...' : 'Pesquisa Automática Detectada'}
             </h3>
           </div>
           <button
@@ -42,6 +48,21 @@ export default function ResearchConfirmationModal({
 
         {/* Content */}
         <div className="space-y-4">
+          {isResearching ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800">
+                    Pesquisando informações sobre {companyName}
+                  </p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Isso pode levar alguns minutos. Por favor, aguarde...
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
@@ -56,7 +77,9 @@ export default function ResearchConfirmationModal({
               </div>
             </div>
           </div>
+          )}
 
+          {!isResearching && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="text-sm font-medium text-blue-800 mb-2">
               O que será pesquisado:
@@ -69,7 +92,9 @@ export default function ResearchConfirmationModal({
               <li>• Dados financeiros públicos</li>
             </ul>
           </div>
+          )}
 
+          {!isResearching && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <AlertTriangle className="w-4 h-4 text-gray-600 mt-0.5" />
@@ -79,35 +104,27 @@ export default function ResearchConfirmationModal({
               </p>
             </div>
           </div>
+          )}
         </div>
 
         {/* Actions */}
-        <div className="flex space-x-3 mt-6">
+        {!isResearching && (
+          <div className="flex space-x-3 mt-6">
           <button
             onClick={onClose}
-            disabled={isResearching}
             className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
           >
             Finalizar Cadastro
           </button>
           <button
             onClick={onConfirm}
-            disabled={isResearching}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
           >
-            {isResearching ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Pesquisando...</span>
-              </>
-            ) : (
-              <>
-                <Search size={16} />
-                <span>Iniciar Pesquisa</span>
-              </>
-            )}
+            <Search size={16} />
+            <span>Iniciar Pesquisa</span>
           </button>
         </div>
+        )}
       </div>
     </div>
   );

@@ -131,6 +131,11 @@ export class CompanyResearchService {
 
   // Gera documento PDF completo
   static async generateCompanyDocument(researchData: CompanyResearchData): Promise<Blob> {
+    // Verificar se estamos no browser
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      throw new Error('PDF generation only available in browser environment');
+    }
+    
     const doc = new jsPDF();
     let yPosition = 20;
 
@@ -139,15 +144,17 @@ export class CompanyResearchService {
     const margin = 20;
     const lineHeight = 7;
 
-    // Função para adicionar texto com quebra de linha
-    const addText = (text: string, fontSize = 12, isBold = false) => {
-      if (yPosition > pageHeight - 30) {
-        doc.addPage();
-        yPosition = 20;
+      // Trigger download - verificar se estamos no browser
+      if (typeof window !== 'undefined' && window.document) {
+        const url = URL.createObjectURL(document);
+        const a = window.document.createElement('a');
+        a.href = url;
+        a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
+        window.document.body.appendChild(a);
+        a.click();
+        window.document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       }
-
-      doc.setFontSize(fontSize);
-      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
       
       const lines = doc.splitTextToSize(text, 170);
       doc.text(lines, margin, yPosition);
@@ -230,7 +237,15 @@ export class CompanyResearchService {
       doc.text(`Página ${i} de ${totalPages} - Gerado automaticamente pelo Sistema Aether`, margin, pageHeight - 10);
       doc.text(`Fonte: Pesquisa web automatizada - ${new Date().toLocaleString('pt-BR')}`, margin, pageHeight - 5);
     }
-
+      
+      // Tratar diferentes tipos de erro
+      if (error.message.includes('Rate limit')) {
+        throw new Error('⏳ Muitas pesquisas em pouco tempo. Tente novamente em alguns minutos.');
+      } else if (error.message.includes('API key')) {
+        throw new Error('🔑 Problema com a API key. Contate o administrador.');
+      } else {
+        throw new Error(`❌ Falha na pesquisa: ${error.message}`);
+      }
     return doc.output('blob');
   }
 }
