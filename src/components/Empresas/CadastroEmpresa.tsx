@@ -683,3 +683,371 @@ export default function CadastroEmpresa() {
           rows={4}
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-[#003B6D] mb-2">
+          Mercado de Atuação
+        </label>
+        <textarea
+          value={formData.mercadoAtuacao}
+          onChange={(e) => handleInputChange('mercadoAtuacao', e.target.value)}
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva o mercado onde a empresa atua..."
+          rows={3}
+        />
+      </div>
+    </div>
+  );
+
+  const renderNecessidades = () => (
+    <div className="space-y-6">
+      <div>
+        <label className="block text-sm font-medium text-[#003B6D] mb-4">
+          Selecione as necessidades da empresa *
+        </label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {necessidadesOptions.map((necessidade) => (
+            <button
+              key={necessidade.value}
+              type="button"
+              onClick={() => handleNecessidadeToggle(necessidade.value)}
+              className={`p-4 rounded-lg border-2 transition-all text-left ${
+                formData.necessidades.includes(necessidade.value)
+                  ? 'border-[#0A74DA] bg-[#0A74DA]/10'
+                  : 'border-gray-300 hover:border-[#0A74DA]/50'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl">{necessidade.icon}</span>
+                <span className="font-medium text-[#003B6D]">
+                  {necessidade.label}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStakeholders = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <label className="block text-sm font-medium text-[#003B6D]">
+          Stakeholders
+        </label>
+        <button
+          type="button"
+          onClick={addStakeholder}
+          className="flex items-center space-x-2 px-4 py-2 bg-[#0A74DA] text-white rounded-lg hover:bg-[#0A74DA]/90 transition-colors"
+        >
+          <Plus size={16} />
+          <span>Adicionar</span>
+        </button>
+      </div>
+
+      {formData.stakeholders.map((stakeholder, index) => (
+        <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium text-[#003B6D]">
+              Stakeholder {index + 1}
+            </h4>
+            {formData.stakeholders.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeStakeholder(index)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[#003B6D] mb-2">
+                Nome
+              </label>
+              <input
+                type="text"
+                value={stakeholder.nome}
+                onChange={(e) => updateStakeholder(index, 'nome', e.target.value)}
+                className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+                placeholder="Nome do stakeholder"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#003B6D] mb-2">
+                Cargo
+              </label>
+              <input
+                type="text"
+                value={stakeholder.cargo}
+                onChange={(e) => updateStakeholder(index, 'cargo', e.target.value)}
+                className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+                placeholder="Cargo na empresa"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#003B6D] mb-2">
+                E-mail
+              </label>
+              <input
+                type="email"
+                value={stakeholder.email}
+                onChange={(e) => updateStakeholder(index, 'email', e.target.value)}
+                className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+                placeholder="email@empresa.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#003B6D] mb-2">
+                Função
+              </label>
+              <select
+                value={stakeholder.funcao}
+                onChange={(e) => updateStakeholder(index, 'funcao', e.target.value)}
+                className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+              >
+                <option value="">Selecione a função</option>
+                {funcaoOptions.map((funcao) => (
+                  <option key={funcao} value={funcao}>
+                    {funcao}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderHistorico = () => (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-[#003B6D] mb-2">
+          Projetos Anteriores
+        </label>
+        <textarea
+          value={formData.historico.projetosAnteriores}
+          onChange={(e) => handleInputChange('projetosAnteriores', e.target.value, 'historico')}
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva projetos similares já realizados..."
+          rows={4}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-[#003B6D] mb-2">
+          Resultados Obtidos
+        </label>
+        <textarea
+          value={formData.historico.resultadosObtidos}
+          onChange={(e) => handleInputChange('resultadosObtidos', e.target.value, 'historico')}
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva os resultados alcançados em projetos anteriores..."
+          rows={4}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-[#003B6D] mb-2">
+          Experiência com Consultoria
+        </label>
+        <textarea
+          value={formData.historico.experienciaConsultoria}
+          onChange={(e) => handleInputChange('experienciaConsultoria', e.target.value, 'historico')}
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva a experiência prévia com serviços de consultoria..."
+          rows={4}
+        />
+      </div>
+    </div>
+  );
+
+  const renderConfiguracaoIA = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-[#003B6D] mb-2">
+            Foco Principal
+          </label>
+          <select
+            value={formData.configuracaoIA.foco}
+            onChange={(e) => handleInputChange('foco', e.target.value, 'configuracaoIA')}
+            className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+          >
+            <option value="">Selecione o foco</option>
+            <option value="eficiencia">Eficiência Operacional</option>
+            <option value="crescimento">Crescimento de Receita</option>
+            <option value="inovacao">Inovação</option>
+            <option value="custos">Redução de Custos</option>
+            <option value="qualidade">Melhoria da Qualidade</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#003B6D] mb-2">
+            Tom de Comunicação
+          </label>
+          <select
+            value={formData.configuracaoIA.tom}
+            onChange={(e) => handleInputChange('tom', e.target.value, 'configuracaoIA')}
+            className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl"
+          >
+            <option value="">Selecione o tom</option>
+            <option value="formal">Formal</option>
+            <option value="casual">Casual</option>
+            <option value="tecnico">Técnico</option>
+            <option value="executivo">Executivo</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#003B6D] mb-2">
+          Personalidade da IA
+        </label>
+        <textarea
+          value={formData.configuracaoIA.personalidade}
+          onChange={(e) => handleInputChange('personalidade', e.target.value, 'configuracaoIA')}
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva como a IA deve se comportar nas interações..."
+          rows={3}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#E8F4FD] to-[#F0F9FF] p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/')}
+              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft size={24} className="text-[#003B6D]" />
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-[#003B6D]">
+                Cadastro de Cliente
+              </h1>
+              <p className="text-[#0A74DA] mt-1">
+                Preencha as informações do cliente
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            {sections.map((section, index) => {
+              const Icon = section.icon;
+              return (
+                <div
+                  key={index}
+                  className={`flex items-center space-x-2 ${
+                    index === currentSection
+                      ? 'text-[#0A74DA]'
+                      : index < currentSection
+                      ? 'text-green-600'
+                      : 'text-gray-400'
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span className="text-sm font-medium hidden md:block">
+                    {section.title}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-[#0A74DA] h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${((currentSection + 1) / sections.length) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="glass-card p-8 rounded-2xl">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[#003B6D] mb-2">
+              {sections[currentSection].title}
+            </h2>
+            <p className="text-[#0A74DA]">
+              Seção {currentSection + 1} de {sections.length}
+            </p>
+          </div>
+
+          {/* Render current section */}
+          {currentSection === 0 && renderDadosBasicos()}
+          {currentSection === 1 && renderContextoNegocio()}
+          {currentSection === 2 && renderNecessidades()}
+          {currentSection === 3 && renderStakeholders()}
+          {currentSection === 4 && renderHistorico()}
+          {currentSection === 5 && renderConfiguracaoIA()}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-8">
+            <button
+              type="button"
+              onClick={prevSection}
+              disabled={currentSection === 0}
+              className="px-6 py-3 border border-[#0A74DA] text-[#0A74DA] rounded-xl hover:bg-[#0A74DA]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+
+            <div className="flex space-x-4">
+              {currentSection === sections.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={handleSaveCompany}
+                  className="flex items-center space-x-2 px-6 py-3 bg-[#0A74DA] text-white rounded-xl hover:bg-[#0A74DA]/90 transition-colors"
+                >
+                  <Save size={20} />
+                  <span>Salvar Cliente</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={nextSection}
+                  className="px-6 py-3 bg-[#0A74DA] text-white rounded-xl hover:bg-[#0A74DA]/90 transition-colors"
+                >
+                  Próximo
+                </button>
+              )}
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Research Modal */}
+      {showResearchModal && (
+        <ResearchConfirmationModal
+          isOpen={showResearchModal}
+          onClose={() => {
+            setShowResearchModal(false);
+            navigate('/empresas');
+          }}
+          onConfirm={handleAutoResearch}
+          isLoading={isResearching}
+          companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
+        />
+      )}
+    </div>
+  );
+}

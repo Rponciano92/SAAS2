@@ -1,10 +1,8 @@
 // Hybrid AI Service - Combina IA Especialista + IA de Pesquisa
 import { PerplexityService, PerplexityResponse } from './perplexityService';
 import { EmpresaDetalhes } from '@/types/company';
-import { CompanyResearchData } from './companyResearchService';
 import { KnowledgeBaseService } from './knowledgeBaseService';
 import { CompanyResearchData } from './companyResearchService';
-import { KnowledgeBaseService } from './knowledgeBaseService';
 
 export type AISource = 'especialista' | 'pesquisa' | 'hibrido';
 
