@@ -8,37 +8,50 @@ import { CompanyResearchService } from '@/services/companyResearchService';
 import type { Database } from '@/lib/supabase';
 
 // Função para detectar se é empresa grande que merece pesquisa automática
-const detectLargeCompany = (formData: any, companyName: string): boolean => {
-  const name = companyName.toLowerCase();
-  const sector = formData.setor?.toLowerCase() || '';
-  const size = formData.tipoCadastro === 'pj' ? formData.tamanhoEmpresa : formData.tipoAtuacao;
-  const revenue = formData.tipoCadastro === 'pj' ? formData.faturamentoAnual : formData.rendaMensal;
-  
-  // Indicadores de empresa grande
-  const largeIndicators = [
-    'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc',
-    'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações'
-  ];
-  
-  const hasLargeIndicators = largeIndicators.some(indicator => 
-    name.includes(indicator) || sector.includes(indicator)
-  );
-  
-  const isLargeSize = size && (
-    size.includes('Grande') || 
-    size.includes('Corporação') || 
-    size.includes('1000+')
-  );
-  
-  const isHighRevenue = revenue && (
-    revenue.includes('300 mi') || 
-    revenue.includes('1 bi') || 
-    revenue.includes('Acima')
-  );
-  
-  return hasLargeIndicators || isLargeSize || isHighRevenue;
+const detectLargeCompany = (formData: any): boolean => {
+  try {
+    const nome = formData?.nomeEmpresa?.toLowerCase() || formData?.nomeCompleto?.toLowerCase() || '';
+    const setor = formData?.setor?.toLowerCase() || '';
+    const tamanho = formData?.tamanhoEmpresa?.toLowerCase() || formData?.tipoAtuacao?.toLowerCase() || '';
+    const faturamento = formData?.faturamentoAnual?.toLowerCase() || formData?.rendaMensal?.toLowerCase() || '';
+    
+    // Indicadores de empresa grande por nome/setor
+    const largeCompanyKeywords = [
+      // Sufixos empresariais
+      'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc', 'holding',
+      
+      // Setores de grande porte
+      'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações',
+      'farmacêutica', 'automotiva', 'tecnologia', 'consultoria',
+      'siderurgia', 'química', 'alimentícia', 'varejo',
+      
+      // Palavras-chave de tamanho
+      'multinacional', 'internacional', 'global', 'grupo', 'conglomerado'
+    ];
+    
+    // Verificar indicadores no nome ou setor
+    const hasKeywords = largeCompanyKeywords.some(keyword => 
+      nome.includes(keyword) || setor.includes(keyword)
+    );
+    
+    // Verificar tamanho declarado
+    const largeSize = ['grande', 'multinacional', 'corporação', '1000+', 'enterprise'];
+    const isLargeBySize = largeSize.some(size => tamanho.includes(size));
+    
+    // Verificar faturamento alto
+    const highRevenue = ['300 mi', '1 bi', 'acima', 'alto'];
+    const hasHighRevenue = highRevenue.some(revenue => faturamento.includes(revenue));
+    
+    // Retornar true se encontrar qualquer indicador
+    return hasKeywords || isLargeBySize || hasHighRevenue;
+    
+  } catch (error) {
+    console.error('Erro na detecção de empresa grande:', error);
+    return false; // Em caso de erro, não ativar pesquisa automática
+  }
 };
 
+// Função para detectar se é empresa grande que merece pesquisa automática
 const necessidadesOptions = [
   { value: 'chat', label: '💬 Chat Inteligente', icon: '💬' },
   { value: 'reunioes', label: '📅 Gestão de Reuniões', icon: '📅' },
@@ -386,8 +399,8 @@ export default function CadastroEmpresa() {
       // Verificar se é cliente grande e mostrar modal
       const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
       
-      // Melhorar detecção de empresa grande
-      const isLargeCompany = this.detectLargeCompany(formData, companyName);
+      // Verificar se é empresa grande
+      const isLargeCompany = detectLargeCompany(formData);
       
       if (isLargeCompany && companyName.trim()) {
         alert('✅ Cliente cadastrado com sucesso!');
@@ -411,38 +424,6 @@ export default function CadastroEmpresa() {
         alert(`❌ Erro ao cadastrar cliente: ${error.message}`);
       }
     }
-  };
-  
-  // Função melhorada para detectar empresa grande
-  const detectLargeCompany = (data: any, companyName: string): boolean => {
-    const name = companyName.toLowerCase();
-    const sector = data.setor?.toLowerCase() || '';
-    const size = data.tipoCadastro === 'pj' ? data.tamanhoEmpresa : data.tipoAtuacao;
-    const revenue = data.tipoCadastro === 'pj' ? data.faturamentoAnual : data.rendaMensal;
-    
-    // Indicadores de empresa grande
-    const largeIndicators = [
-      'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc',
-      'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações'
-    ];
-    
-    const hasLargeIndicators = largeIndicators.some(indicator => 
-      name.includes(indicator) || sector.includes(indicator)
-    );
-    
-    const isLargeSize = size && (
-      size.includes('Grande') || 
-      size.includes('Corporação') || 
-      size.includes('1000+')
-    );
-    
-    const isHighRevenue = revenue && (
-      revenue.includes('300 mi') || 
-      revenue.includes('1 bi') || 
-      revenue.includes('Acima')
-    );
-    
-    return hasLargeIndicators || isLargeSize || isHighRevenue;
   };
 
   const nextSection = () => {
