@@ -96,7 +96,14 @@ export class CompanyResearchService {
 
     } catch (error) {
       console.error('❌ Erro na pesquisa automática:', error);
-      throw new Error(`Falha na pesquisa: ${error.message}`);
+      // Tratar diferentes tipos de erro
+      if (error.message.includes('Rate limit')) {
+        throw new Error('⏳ Muitas pesquisas em pouco tempo. Tente novamente em alguns minutos.');
+      } else if (error.message.includes('API key')) {
+        throw new Error('🔑 Problema com a API key. Contate o administrador.');
+      } else {
+        throw new Error(`❌ Falha na pesquisa: ${error.message}`);
+      }
     }
   }
 
@@ -144,17 +151,14 @@ export class CompanyResearchService {
     const margin = 20;
     const lineHeight = 7;
 
-      // Trigger download - verificar se estamos no browser
-      if (typeof window !== 'undefined' && window.document) {
-        const url = URL.createObjectURL(document);
-        const a = window.document.createElement('a');
-        a.href = url;
-        a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
-        window.document.body.appendChild(a);
-        a.click();
-        window.document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    const addText = (text: string, fontSize: number = 12, bold: boolean = false) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = 20;
       }
+
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', bold ? 'bold' : 'normal');
       
       const lines = doc.splitTextToSize(text, 170);
       doc.text(lines, margin, yPosition);
@@ -237,15 +241,7 @@ export class CompanyResearchService {
       doc.text(`Página ${i} de ${totalPages} - Gerado automaticamente pelo Sistema Aether`, margin, pageHeight - 10);
       doc.text(`Fonte: Pesquisa web automatizada - ${new Date().toLocaleString('pt-BR')}`, margin, pageHeight - 5);
     }
-      
-      // Tratar diferentes tipos de erro
-      if (error.message.includes('Rate limit')) {
-        throw new Error('⏳ Muitas pesquisas em pouco tempo. Tente novamente em alguns minutos.');
-      } else if (error.message.includes('API key')) {
-        throw new Error('🔑 Problema com a API key. Contate o administrador.');
-      } else {
-        throw new Error(`❌ Falha na pesquisa: ${error.message}`);
-      }
+
     return doc.output('blob');
   }
 }
