@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { BookOpen, Search, Filter, Tag, Eye, Download, Star, Clock, User, Plus, Brain, Upload } from 'lucide-react';
-import { KnowledgeBaseService, KnowledgeItem, ContentMetadata } from '@/services/knowledgeBaseService';
 
 interface ConhecimentoItem {
   id: string;

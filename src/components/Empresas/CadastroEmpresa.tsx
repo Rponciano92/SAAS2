@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { CompanyService, StakeholderService } from '@/services/companyService';
-import { CompanyResearchService, CompanyResearchData } from '@/services/companyResearchService';
 import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import type { Database } from '@/lib/supabase';
@@ -143,6 +140,39 @@ const funcaoOptions = [
   "Analista",
   "Consultor",
   "Outro",
+];
+
+const necessidadesOptions = [
+  {
+    id: "reunioes",
+    label: "Gravação e resumo de reuniões",
+    icon: "📅",
+    description: "Google Meet integrado com IA",
+  },
+  {
+    id: "chat",
+    label: "Chat com insights estratégicos",
+    icon: "💬",
+    description: "Assistente IA 24/7 especializado",
+  },
+  {
+    id: "analises",
+    label: "Análises preditivas",
+    icon: "📊",
+    description: "Projeções e tendências de mercado",
+  },
+  {
+    id: "relatorios",
+    label: "Relatórios executivos",
+    icon: "📋",
+    description: "Relatórios automáticos personalizados",
+  },
+  {
+    id: "kpis",
+    label: "Monitoramento de KPIs",
+    icon: "📈",
+    description: "Dashboard de métricas estratégicas",
+  },
 ];
 
 export default function CadastroEmpresa() {
