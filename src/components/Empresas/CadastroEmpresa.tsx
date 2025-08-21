@@ -2,57 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { DocumentGeneratorService } from '@/services/documentGeneratorService';
-import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
-import { CompanyService, StakeholderService } from '@/services/companyService';
-import { CompanyResearchService } from '@/services/companyResearchService';
-import type { Database } from '@/lib/supabase';
 
-// Função para detectar se é empresa grande que merece pesquisa automática
-const detectLargeCompany = (formData: any): boolean => {
-  try {
-    const nome = formData?.nomeEmpresa?.toLowerCase() || formData?.nomeCompleto?.toLowerCase() || '';
-    const setor = formData?.setor?.toLowerCase() || '';
-    const tamanho = formData?.tamanhoEmpresa?.toLowerCase() || formData?.tipoAtuacao?.toLowerCase() || '';
-    const faturamento = formData?.faturamentoAnual?.toLowerCase() || formData?.rendaMensal?.toLowerCase() || '';
-    
-    // Indicadores de empresa grande por nome/setor
-    const largeCompanyKeywords = [
-      // Sufixos empresariais
-      'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc', 'holding',
-      
-      // Setores de grande porte
-      'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações',
-      'farmacêutica', 'automotiva', 'tecnologia', 'consultoria',
-      'siderurgia', 'química', 'alimentícia', 'varejo',
-      
-      // Palavras-chave de tamanho
-      'multinacional', 'internacional', 'global', 'grupo', 'conglomerado'
-    ];
-    
-    // Verificar indicadores no nome ou setor
-    const hasKeywords = largeCompanyKeywords.some(keyword => 
-      nome.includes(keyword) || setor.includes(keyword)
-    );
-    
-    // Verificar tamanho declarado
-    const largeSize = ['grande', 'multinacional', 'corporação', '1000+', 'enterprise'];
-    const isLargeBySize = largeSize.some(size => tamanho.includes(size));
-    
-    // Verificar faturamento alto
-    const highRevenue = ['300 mi', '1 bi', 'acima', 'alto'];
-    const hasHighRevenue = highRevenue.some(revenue => faturamento.includes(revenue));
-    
-    // Retornar true se encontrar qualquer indicador
-    return hasKeywords || isLargeBySize || hasHighRevenue;
-    
-  } catch (error) {
-    console.error('Erro na detecção de empresa grande:', error);
-    return false; // Em caso de erro, não ativar pesquisa automática
-  }
-};
-
-// Função para detectar se é empresa grande que merece pesquisa automática
 const necessidadesOptions = [
   { value: 'chat', label: '💬 Chat Inteligente', icon: '💬' },
   { value: 'reunioes', label: '📅 Gestão de Reuniões', icon: '📅' },
@@ -176,9 +126,6 @@ const funcaoOptions = [
 export default function CadastroEmpresa() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
-  const [showResearchModal, setShowResearchModal] = useState(false);
-  const [isResearching, setIsResearching] = useState(false);
-  const [researchData, setResearchData] = useState<CompanyResearchData | null>(null);
   const [formData, setFormData] = useState<FormData>({
     tipoCadastro: 'pj',
     nomeEmpresa: '',
@@ -212,6 +159,40 @@ export default function CadastroEmpresa() {
       personalidade: '',
     },
   });
+
+  // Função para detectar se é empresa grande (SEM PESQUISA AUTOMÁTICA)
+  const detectLargeCompany = (formData: any): boolean => {
+    try {
+      const nome = formData?.nomeEmpresa?.toLowerCase() || formData?.nomeCompleto?.toLowerCase() || '';
+      const setor = formData?.setor?.toLowerCase() || '';
+      const tamanho = formData?.tamanhoEmpresa?.toLowerCase() || formData?.tipoAtuacao?.toLowerCase() || '';
+      const faturamento = formData?.faturamentoAnual?.toLowerCase() || formData?.rendaMensal?.toLowerCase() || '';
+      
+      // Indicadores de empresa grande por nome/setor
+      const largeCompanyKeywords = [
+        'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc', 'holding',
+        'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações',
+        'farmacêutica', 'automotiva', 'tecnologia', 'consultoria',
+        'multinacional', 'internacional', 'global', 'grupo', 'conglomerado'
+      ];
+      
+      const hasKeywords = largeCompanyKeywords.some(keyword => 
+        nome.includes(keyword) || setor.includes(keyword)
+      );
+      
+      const largeSize = ['grande', 'multinacional', 'corporação', '1000+', 'enterprise'];
+      const isLargeBySize = largeSize.some(size => tamanho.includes(size));
+      
+      const highRevenue = ['300 mi', '1 bi', 'acima', 'alto'];
+      const hasHighRevenue = highRevenue.some(revenue => faturamento.includes(revenue));
+      
+      return hasKeywords || isLargeBySize || hasHighRevenue;
+      
+    } catch (error) {
+      console.error('Erro na detecção de empresa grande:', error);
+      return false;
+    }
+  };
 
   const sections = [
     { title: "Dados Básicos", icon: Building2 },
@@ -277,83 +258,23 @@ export default function CadastroEmpresa() {
     // Não fazer nada aqui - apenas prevenir submit padrão
   };
 
-  const handleAutoResearch = async () => {
-    setIsResearching(true);
-    setShowResearchModal(false);
+  const handleSaveCompany = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     
-    try {
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      const cnpj = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
-      
-      if (!companyName.trim()) {
-        throw new Error('Nome da empresa é obrigatório para pesquisa');
-      }
-      
-      const research = await CompanyResearchService.researchCompany(companyName, cnpj);
-      setResearchData(research);
-      
-      // Gerar documento PDF automaticamente
-      const documentService = new DocumentGeneratorService();
-      const document = await documentService.generateCompanyReport(companyName, research);
-      
-      // Trigger download - verificar contexto do browser
-      if (typeof window !== 'undefined' && window.document) {
-        try {
-          const url = URL.createObjectURL(document);
-          const a = window.document.createElement('a');
-          a.href = url;
-          a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
-          window.document.body.appendChild(a);
-          a.click();
-          window.document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } catch (downloadError) {
-          console.error('Erro no download:', downloadError);
-          alert('PDF gerado com sucesso, mas houve problema no download automático.');
-        }
-      }
-      
-      // Completar dados do formulário com stakeholders pesquisados
-      if (research.stakeholders.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          stakeholders: research.stakeholders.map(s => ({
-            nome: s.name,
-            cargo: s.position,
-            email: '',
-            funcao: s.position
-          }))
-        }));
-      }
-      
-      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente. Dados dos stakeholders foram preenchidos automaticamente.');
-      navigate('/');
-      
-    } catch (error) {
-      console.error('Erro na pesquisa automática:', error);
-      
-      // Mostrar erro específico para o usuário
-      if (error.message.includes('Rate limit') || error.message.includes('⏳')) {
-        alert('⏳ Muitas pesquisas em pouco tempo. Os dados básicos foram salvos. Tente a pesquisa novamente em alguns minutos.');
-      } else if (error.message.includes('API key') || error.message.includes('🔑')) {
-        alert('🔑 Problema com a configuração da API. Os dados básicos foram salvos.');
-      } else {
-        alert(`❌ Erro na pesquisa automática: ${error.message}\n\nOs dados básicos foram salvos com sucesso.`);
-      }
-      
-      // Navegar mesmo com erro na pesquisa
-      navigate('/empresas');
-    } finally {
-      setIsResearching(false);
-    }
-  };
-
-  const handleSaveCompany = async () => {
     try {
       console.log('💾 Iniciando salvamento da empresa...');
       
-      // Prepare company data for Supabase
-      const companyData: Database['public']['Tables']['companies']['Insert'] = {
+      // Validar campos obrigatórios
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      const companyDoc = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
+      
+      if (!companyName.trim() || !companyDoc.trim() || !formData.setor) {
+        alert('❌ Preencha os campos obrigatórios: Nome, CNPJ/CPF e Setor');
+        return;
+      }
+      
+      // Preparar dados para Supabase
+      const companyData = {
         nome: formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto,
         cnpj: formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf,
         setor: formData.setor,
@@ -367,17 +288,29 @@ export default function CadastroEmpresa() {
         objetivos: formData.objetivos,
         mercado_atuacao: formData.mercadoAtuacao || null,
         necessidades: formData.necessidades,
-        status: 'ativo',
-        progresso: 0
+        status: 'ativo' as const,
+        progresso: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       console.log('📤 Dados preparados para Supabase:', companyData);
 
-      // Create company
-      const company = await CompanyService.create(companyData);
+      // Salvar empresa no Supabase
+      const { data: company, error } = await supabase
+        .from('companies')
+        .insert([companyData])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('❌ Erro Supabase:', error);
+        throw new Error(error.message);
+      }
+      
       console.log('✅ Empresa criada com sucesso:', company);
 
-      // Create stakeholders if any
+      // Criar stakeholders se houver
       if (formData.stakeholders.length > 0 && formData.stakeholders[0].nome) {
         const stakeholdersData = formData.stakeholders
           .filter(s => s.nome.trim() !== '')
@@ -390,7 +323,15 @@ export default function CadastroEmpresa() {
           }));
 
         if (stakeholdersData.length > 0) {
-          await StakeholderService.createMultiple(stakeholdersData);
+          const { error: stakeholdersError } = await supabase
+            .from('stakeholders')
+            .insert(stakeholdersData);
+            
+          if (stakeholdersError) {
+            console.warn('⚠️ Erro ao salvar stakeholders:', stakeholdersError);
+          } else {
+            console.log('✅ Stakeholders criados com sucesso');
+          }
           console.log('✅ Stakeholders criados com sucesso');
         }
       }
@@ -398,25 +339,18 @@ export default function CadastroEmpresa() {
       console.log('🎉 Cadastro concluído com sucesso!');
       
       // Verificar se é cliente grande e mostrar modal
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      
-      // Verificar se é empresa grande
       const isLargeCompany = detectLargeCompany(formData);
       
-      if (isLargeCompany && companyName.trim()) {
+      if (isLargeCompany) {
+        alert(`✅ Cliente cadastrado com sucesso!\n\n🔍 ${companyName} foi identificada como empresa grande.\n\n📋 A funcionalidade de pesquisa automática será ativada em breve.`);
+      } else {
         alert('✅ Cliente cadastrado com sucesso!');
-        setShowResearchModal(true);
-        return; // Não navegar ainda, aguardar decisão do usuário
       }
       
-      alert('✅ Cliente cadastrado com sucesso!');
-      // Navegar para lista de empresas
       navigate('/empresas');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
-      
-      // Mostrar erro específico
       if (error.message.includes('duplicate key')) {
         alert('❌ Erro: CNPJ/CPF já cadastrado no sistema.');
       } else if (error.message.includes('violates not-null')) {
@@ -1101,7 +1035,7 @@ export default function CadastroEmpresa() {
               {currentSection === sections.length - 1 ? (
                 <button
                   type="button"
-                  onClick={handleSaveCompany}
+                  onClick={(e) => handleSaveCompany(e)}
                   className="flex items-center space-x-2 px-6 py-3 bg-[#0A74DA] text-white rounded-xl hover:bg-[#0A74DA]/90 transition-colors"
                 >
                   <Save size={20} />
@@ -1121,39 +1055,6 @@ export default function CadastroEmpresa() {
         </form>
       </div>
 
-      {/* Research Modal */}
-      {showResearchModal && (
-        <ResearchConfirmationModal
-          isOpen={showResearchModal}
-          onClose={() => {
-            setShowResearchModal(false);
-            navigate('/empresas');
-          }}
-          onConfirm={handleAutoResearch}
-          isLoading={isResearching}
-          isLoading={isResearching}
-          companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
-        />
-      )}
-      
-      {/* Loading Modal para Pesquisa */}
-      {isResearching && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A74DA]"></div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#003B6D]">
-                  🔍 Pesquisando empresa...
-                </h3>
-                <p className="text-gray-600">
-                  Coletando informações da internet. Isso pode levar alguns minutos.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
