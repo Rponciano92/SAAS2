@@ -35,16 +35,6 @@ export default function GestaoEmpresas() {
 
     if (!confirmed) return;
 
-    // Segunda confirmação mais rigorosa
-    const finalConfirmation = window.prompt(
-      `🚨 CONFIRMAÇÃO FINAL\n\n` +
-      `Para excluir "${companyName}" permanentemente, digite: EXCLUIR`
-    );
-
-    if (finalConfirmation !== 'EXCLUIR') {
-      alert('❌ Exclusão cancelada. Texto de confirmação incorreto.');
-      return;
-    }
 
     try {
       setDeletingId(companyId);
