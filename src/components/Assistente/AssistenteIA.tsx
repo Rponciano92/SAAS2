@@ -226,15 +226,15 @@ export default function AssistenteIA() {
       {/* Chat Container */}
       <div className="flex-1 flex gap-3 min-h-0 overflow-hidden relative">
         {/* Mobile Sidebar Toggle - Logo abaixo do header */}
-        <div className="md:hidden absolute top-0 left-0 right-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200/50">
-          <div className="px-4 py-2">
+        <div className="md:hidden absolute top-0 left-0 right-0 z-10 bg-gradient-to-r from-[#0A74DA]/95 to-[#003B6D]/95 backdrop-blur-sm border-b border-white/20 rounded-b-2xl">
+          <div className="px-4 py-2 rounded-b-2xl">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="w-full flex items-center justify-between p-3 transition-colors rounded-2xl"
+              className="w-full flex items-center justify-between p-3 transition-colors rounded-2xl text-white hover:bg-white/10"
             >
-              <span className="text-sm font-medium text-gray-700">Ações e Sugestões</span>
+              <span className="text-sm font-medium text-white">Ações e Sugestões</span>
               <div className={`transform transition-transform ${sidebarOpen ? 'rotate-180' : ''}`}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
                   <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
