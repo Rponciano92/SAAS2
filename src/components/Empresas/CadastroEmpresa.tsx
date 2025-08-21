@@ -359,56 +359,6 @@ export default function CadastroEmpresa() {
     }
   };
 
-  const handleAutoResearch = async () => {
-    setIsResearching(true);
-    try {
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      const cnpj = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
-      
-      const research = await CompanyResearchService.researchCompany(companyName, cnpj);
-      setResearchData(research);
-      
-      // Gerar documento PDF automaticamente
-      const documentService = new DocumentGeneratorService();
-      const document = await documentService.generateCompanyReport(companyName, research);
-      
-      // Trigger download
-      const url = URL.createObjectURL(document);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      // Completar dados do formulário com stakeholders pesquisados
-      if (research.stakeholders.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          stakeholders: research.stakeholders.map(s => ({
-            nome: s.name,
-            cargo: s.position,
-            email: '',
-            funcao: s.position
-          }))
-        }));
-      }
-      
-      setShowResearchModal(false);
-      
-      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente. Dados dos stakeholders foram preenchidos automaticamente.');
-      navigate('/');
-      
-    } catch (error) {
-      console.error('Erro na pesquisa automática:', error);
-      alert('❌ Erro na pesquisa automática. Salvando dados básicos...');
-      setShowResearchModal(false);
-      navigate('/');
-    } finally {
-      setIsResearching(false);
-    }
-  };
   const nextSection = () => {
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);
