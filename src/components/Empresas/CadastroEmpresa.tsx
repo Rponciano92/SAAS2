@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { CompanyResearchService } from '@/services/companyResearchService';
+import { DocumentGeneratorService } from '@/services/documentGeneratorService';
+import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 
 const necessidadesOptions = [
   { value: 'chat', label: '💬 Chat Inteligente', icon: '💬' },
@@ -126,6 +129,8 @@ const funcaoOptions = [
 export default function CadastroEmpresa() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
+  const [showResearchModal, setShowResearchModal] = useState(false);
+  const [isResearching, setIsResearching] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     tipoCadastro: 'pj',
     nomeEmpresa: '',
@@ -194,6 +199,39 @@ export default function CadastroEmpresa() {
     }
   };
 
+  // Função de pesquisa automática
+  const handleAutoResearch = async (companyName: string) => {
+    try {
+      setIsResearching(true);
+      console.log('🔍 Iniciando pesquisa automática para:', companyName);
+      
+      // Fazer pesquisa com API corrigida
+      const researchData = await CompanyResearchService.researchCompany(companyName);
+      
+      // Gerar documento PDF
+      const documentService = new DocumentGeneratorService();
+      const pdfBlob = await documentService.generateCompanyReport(companyName, researchData);
+      
+      // Download automático do PDF
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente.');
+      setShowResearchModal(false);
+      
+    } catch (error) {
+      console.error('❌ Erro na pesquisa automática:', error);
+      alert(`❌ Erro na pesquisa: ${error.message}`);
+    } finally {
+      setIsResearching(false);
+    }
+  };
   const sections = [
     { title: "Dados Básicos", icon: Building2 },
     { title: "Contexto de Negócio", icon: FileText },
@@ -342,12 +380,11 @@ export default function CadastroEmpresa() {
       const isLargeCompany = detectLargeCompany(formData);
       
       if (isLargeCompany) {
-        alert(`✅ Cliente cadastrado com sucesso!\n\n🔍 ${companyName} foi identificada como empresa grande.\n\n📋 A funcionalidade de pesquisa automática será ativada em breve.`);
+        setShowResearchModal(true);
       } else {
         alert('✅ Cliente cadastrado com sucesso!');
+        navigate('/empresas');
       }
-      
-      navigate('/empresas');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
@@ -1055,6 +1092,21 @@ export default function CadastroEmpresa() {
         </form>
       </div>
 
+      {/* Modal de Confirmação de Pesquisa */}
+      <ResearchConfirmationModal
+        isOpen={showResearchModal}
+        onClose={() => {
+          setShowResearchModal(false);
+          navigate('/empresas');
+        }}
+        onConfirm={() => {
+          const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+          handleAutoResearch(companyName);
+        }}
+        isLoading={isResearching}
+        companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
+        isResearching={isResearching}
+      />
     </div>
   );
 }
