@@ -397,18 +397,6 @@ export default function CadastroEmpresa() {
 
       console.log('🎉 Cadastro concluído com sucesso!');
       
-      // Verificar se é cliente grande e mostrar modal
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      
-      // Verificar se é empresa grande
-      const isLargeCompany = detectLargeCompany(formData);
-      
-      if (isLargeCompany && companyName.trim()) {
-        alert('✅ Cliente cadastrado com sucesso!');
-        setShowResearchModal(true);
-        return; // Não navegar ainda, aguardar decisão do usuário
-      }
-      
       alert('✅ Cliente cadastrado com sucesso!');
       // Navegar para lista de empresas
       navigate('/empresas');
