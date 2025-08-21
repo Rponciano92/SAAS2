@@ -26,12 +26,14 @@ export const mockCompanies: EmpresaDetalhes[] = [
       restricoes: ['Evitar linguagem muito técnica', 'Focar em soluções práticas']
     },
     estatisticas: {
-      totalContratos: 5,
       reunioesRealizadas: 12,
       relatoriosGerados: 8,
       kpisMonitorados: 15,
-      horasEconomizadas: 47
+      horasEconomizadas: 47,
+      pesquisasRealizadas: 3,
+      documentosGerados: 5
     },
+    roi: '+127%',
     descricao: 'Startup de tecnologia focada em soluções SaaS para o mercado B2B, com crescimento acelerado e recente captação de investimento série A.',
     desafios: 'Escalabilidade da infraestrutura, retenção de talentos e expansão para novos mercados.',
     objetivos: 'Triplicar base de clientes em 18 meses, lançar 2 novos produtos e preparar para rodada série B.'
@@ -49,7 +51,7 @@ export const mockCompanies: EmpresaDetalhes[] = [
     proximaReuniao: '2025-01-18 10:00',
     ultimaInteracao: '2025-01-14',
     valorContrato: 'R$ 35.000/mês',
-    necessidades: ['kpis', 'relatorios', 'reunioes', 'contratos'],
+    necessidades: ['kpis', 'relatorios', 'reunioes'],
     stakeholders: [
       { id: '1', nome: 'Ana Costa', cargo: 'Diretora Comercial', email: 'ana@retailmax.com.br', telefone: '(11) 98888-1111' },
       { id: '2', nome: 'Carlos Lima', cargo: 'Gerente de Operações', email: 'carlos@retailmax.com.br', telefone: '(11) 98888-2222' }
@@ -60,12 +62,14 @@ export const mockCompanies: EmpresaDetalhes[] = [
       restricoes: ['Manter foco em resultados mensuráveis', 'Priorizar exemplos do setor de varejo']
     },
     estatisticas: {
-      totalContratos: 8,
       reunioesRealizadas: 24,
       relatoriosGerados: 15,
       kpisMonitorados: 22,
-      horasEconomizadas: 78
+      horasEconomizadas: 78,
+      pesquisasRealizadas: 2,
+      documentosGerados: 8
     },
+    roi: '+89%',
     descricao: 'Rede de varejo com 25 lojas físicas e e-commerce em expansão, focada em produtos para casa e decoração.',
     desafios: 'Integração entre canais físicos e digitais, otimização de estoque e logística de última milha.',
     objetivos: 'Aumentar conversão online em 40%, reduzir custos operacionais em 15% e abrir 10 novas lojas.'
@@ -81,7 +85,7 @@ export const mockCompanies: EmpresaDetalhes[] = [
     status: 'pendente',
     progresso: 45,
     ultimaInteracao: '2025-01-10',
-    necessidades: ['contratos', 'analises', 'chat', 'reunioes'],
+    necessidades: ['analises', 'chat', 'reunioes'],
     stakeholders: [
       { id: '1', nome: 'Roberto Lima', cargo: 'Diretor Industrial', email: 'roberto@innovacorp.com.br', telefone: '(11) 97777-1111' },
       { id: '2', nome: 'Carla Mendes', cargo: 'Gerente de Qualidade', email: 'carla@innovacorp.com.br', telefone: '(11) 97777-2222' }
@@ -92,12 +96,14 @@ export const mockCompanies: EmpresaDetalhes[] = [
       restricoes: ['Utilizar terminologia técnica do setor', 'Focar em normas ISO']
     },
     estatisticas: {
-      totalContratos: 12,
       reunioesRealizadas: 8,
       relatoriosGerados: 6,
       kpisMonitorados: 18,
-      horasEconomizadas: 32
+      horasEconomizadas: 32,
+      pesquisasRealizadas: 1,
+      documentosGerados: 3
     },
+    roi: '+156%',
     descricao: 'Empresa de consultoria industrial especializada em otimização de processos e implementação de sistemas de gestão da qualidade.',
     desafios: 'Digitalização de processos tradicionais, capacitação da equipe em novas tecnologias e expansão internacional.',
     objetivos: 'Implementar transformação digital completa, aumentar carteira de clientes em 30% e expandir para América Latina.'
@@ -126,12 +132,14 @@ export const mockCompanies: EmpresaDetalhes[] = [
       restricoes: ['Manter conformidade com LGPD e regulações financeiras', 'Priorizar segurança de dados']
     },
     estatisticas: {
-      totalContratos: 3,
       reunioesRealizadas: 18,
       relatoriosGerados: 22,
       kpisMonitorados: 28,
-      horasEconomizadas: 65
+      horasEconomizadas: 65,
+      pesquisasRealizadas: 4,
+      documentosGerados: 12
     },
+    roi: '+203%',
     descricao: 'Fintech especializada em soluções de crédito para pequenas empresas, utilizando algoritmos proprietários de análise de risco.',
     desafios: 'Escalabilidade da plataforma, redução da taxa de inadimplência e adaptação às novas regulações do Banco Central.',
     objetivos: 'Dobrar volume de crédito concedido, reduzir taxa de inadimplência em 30% e lançar novo produto de antecipação de recebíveis.'
@@ -159,12 +167,14 @@ export const mockCompanies: EmpresaDetalhes[] = [
       restricoes: ['Garantir conformidade com normas de saúde', 'Priorizar confidencialidade de dados de pacientes']
     },
     estatisticas: {
-      totalContratos: 7,
       reunioesRealizadas: 32,
       relatoriosGerados: 18,
       kpisMonitorados: 24,
-      horasEconomizadas: 92
+      horasEconomizadas: 92,
+      pesquisasRealizadas: 1,
+      documentosGerados: 6
     },
+    roi: '+145%',
     descricao: 'Rede de clínicas médicas especializadas em atendimento primário, com foco em experiência do paciente e tecnologia.',
     desafios: 'Expansão para novas regiões, integração de sistemas legados e implementação de telemedicina.',
     objetivos: 'Abrir 5 novas unidades, implementar sistema de prontuário eletrônico unificado e reduzir tempo de espera em 50%.'
@@ -178,7 +188,6 @@ export const getCompanyById = (id: string): EmpresaDetalhes | undefined => {
 export const getNecessidadeLabel = (necessidade: CompanyNecessidade): string => {
   const labels: Record<CompanyNecessidade, string> = {
     chat: 'Chat com IA',
-    contratos: 'Gestão de Contratos',
     reunioes: 'Reuniões Inteligentes',
     relatorios: 'Relatórios Executivos',
     kpis: 'Monitoramento de KPIs',
@@ -191,7 +200,6 @@ export const getNecessidadeLabel = (necessidade: CompanyNecessidade): string => 
 export const getNecessidadeIcon = (necessidade: CompanyNecessidade): string => {
   const icons: Record<CompanyNecessidade, string> = {
     chat: '🤖',
-    contratos: '📄',
     reunioes: '🎥',
     relatorios: '📊',
     kpis: '📈',
@@ -204,7 +212,6 @@ export const getNecessidadeIcon = (necessidade: CompanyNecessidade): string => {
 export const getNecessidadeDescription = (necessidade: CompanyNecessidade): string => {
   const descriptions: Record<CompanyNecessidade, string> = {
     chat: 'Chat inteligente com IA especializada na empresa',
-    contratos: 'Criação e gestão de contratos com IA integrada',
     reunioes: 'Gravação e resumo de reuniões com integração Google Meet',
     relatorios: 'Relatórios executivos gerados por IA',
     kpis: 'Monitoramento de KPIs em tempo real',

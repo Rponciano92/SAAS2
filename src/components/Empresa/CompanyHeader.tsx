@@ -77,13 +77,18 @@ export default function CompanyHeader({ company }: CompanyHeaderProps) {
         )}
         
         <div className="glass-card-subtle p-4 text-center">
-          <div className="text-2xl font-bold text-[#0A74DA] mb-1">{company.estatisticas.totalContratos}</div>
-          <div className="text-sm text-gray-600">Contratos</div>
+          <div className="text-2xl font-bold text-[#0A74DA] mb-1">{company.estatisticas.pesquisasRealizadas}</div>
+          <div className="text-sm text-gray-600">Pesquisas</div>
         </div>
         
         <div className="glass-card-subtle p-4 text-center">
           <div className="text-2xl font-bold text-[#0A74DA] mb-1">{company.estatisticas.reunioesRealizadas}</div>
           <div className="text-sm text-gray-600">Reuniões</div>
+        </div>
+        
+        <div className="glass-card-subtle p-4 text-center">
+          <div className="text-2xl font-bold text-[#0A74DA] mb-1">{company.estatisticas.documentosGerados}</div>
+          <div className="text-sm text-gray-600">Documentos</div>
         </div>
         
         <div className="glass-card-subtle p-4 text-center">

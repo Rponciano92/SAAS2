@@ -1,6 +1,10 @@
 // Hybrid AI Service - Combina IA Especialista + IA de Pesquisa
 import { PerplexityService, PerplexityResponse } from './perplexityService';
 import { EmpresaDetalhes } from '@/types/company';
+import { CompanyResearchData } from './companyResearchService';
+import { KnowledgeBaseService } from './knowledgeBaseService';
+import { CompanyResearchData } from './companyResearchService';
+import { KnowledgeBaseService } from './knowledgeBaseService';
 
 export type AISource = 'especialista' | 'pesquisa' | 'hibrido';
 
@@ -14,20 +18,43 @@ export interface HybridAIResponse {
 }
 
 export class HybridAIService {
+  private knowledgeBaseService: KnowledgeBaseService;
+  
+  constructor() {
+    this.knowledgeBaseService = new KnowledgeBaseService();
+  }
+  
+  private knowledgeBaseService: KnowledgeBaseService;
+  
+  constructor() {
+    this.knowledgeBaseService = new KnowledgeBaseService();
+  }
   
   /**
-   * Gera resposta usando sistema híbrido
+   * Gera resposta usando sistema híbrido com contexto enriquecido
    */
   async generateResponse(
     pergunta: string, 
     company?: EmpresaDetalhes, 
-    context?: string
+    context?: string,
+    companyResearch?: CompanyResearchData
+    companyResearch?: CompanyResearchData
   ): Promise<HybridAIResponse> {
     try {
       console.log('🤖 Iniciando resposta híbrida para:', pergunta);
 
+      // 1. Buscar conhecimento relevante na base
+      const relevantKnowledge = await this.knowledgeBaseService.searchKnowledgeBase(pergunta, {
+        minQuality: 7
+      });
+
+      // 1. Buscar conhecimento relevante na base
+      const relevantKnowledge = await this.knowledgeBaseService.searchKnowledgeBase(pergunta, {
+        minQuality: 7
+      });
+
       // 1. Tentar resposta da IA Especialista primeiro
-      const respostaEspecialista = this.generateSpecialistResponse(pergunta, company);
+      const respostaEspecialista = this.generateSpecialistResponse(pergunta, company, companyResearch, relevantKnowledge);
       
       // 2. Verificar se precisa de pesquisa
       const needsSearch = this.shouldUseWebSearch(pergunta, respostaEspecialista);
@@ -47,14 +74,14 @@ export class HybridAIService {
       const searchResult = await PerplexityService.searchWeb(pergunta);
       
       // 4. Combinar respostas
-      const hybridResponse = this.combineResponses(respostaEspecialista, searchResult, pergunta);
+      const hybridResponse = this.combineResponses(respostaEspecialista, searchResult, pergunta, relevantKnowledge);
       
       return {
         content: hybridResponse,
         source: 'hibrido',
         searchUsed: true,
-        citations: searchResult.citations,
-        relatedQuestions: searchResult.relatedQuestions,
+        citations: ['Pesquisa web via Perplexity AI', 'Base de conhecimento interna'],
+        relatedQuestions: this.generateRelatedQuestions(pergunta, company),
         acoesSugeridas: this.generateHybridActions(pergunta, company)
       };
 
@@ -62,7 +89,7 @@ export class HybridAIService {
       console.error('❌ Erro no sistema híbrido:', error);
       
       // Fallback para IA Especialista em caso de erro
-      const fallbackResponse = this.generateSpecialistResponse(pergunta, company);
+      const fallbackResponse = this.generateSpecialistResponse(pergunta, company, companyResearch);
       return {
         content: fallbackResponse.content + '\n\n⚠️ *Pesquisa web temporariamente indisponível*',
         source: 'especialista',
@@ -73,33 +100,166 @@ export class HybridAIService {
   }
 
   /**
-   * Gera resposta da IA Especialista (lógica atual)
+   * Gera resposta da IA Especialista com contexto enriquecido
    */
-  private generateSpecialistResponse(pergunta: string, company?: EmpresaDetalhes) {
+  private generateSpecialistResponse(
+    pergunta: string, 
+    company?: EmpresaDetalhes, 
+    companyResearch?: CompanyResearchData,
+    knowledgeBase?: any[]
+    companyResearch?: CompanyResearchData,
+    knowledgeBase?: any[]
+  ) {
     const perguntaLower = pergunta.toLowerCase();
     
+    // Respostas enriquecidas com dados de pesquisa
+    // Respostas enriquecidas com dados de pesquisa
     if (perguntaLower.includes('roi') || perguntaLower.includes('retorno')) {
+      let content = '';
+      
+      if (company) {
+        content = `📊 **ROI da ${company.nome}:**\n\n`;
+        content += `• ROI Atual: ${company.roi || 'Em análise'}\n`;
+        content += `• Foco Principal: ${company.configuracaoIA.foco[0]}\n`;
+        content += `• Horas Economizadas: ${company.estatisticas.horasEconomizadas}h\n\n`;
+        
+        if (companyResearch) {
+          content += `🔍 **Dados de Pesquisa:**\n`;
+          content += `${companyResearch.researchResults.financialInfo.substring(0, 300)}...\n\n`;
+        }
+        
+        content += `🎯 **Recomendações Específicas:**\n`;
+        content += `• Manter foco em ${company.configuracaoIA.foco.join(', ')}\n`;
+        content += `• Monitorar KPIs: ${company.estatisticas.kpisMonitorados} ativos\n`;
+        content += `• Próxima reunião: ${company.proximaReuniao ? new Date(company.proximaReuniao).toLocaleDateString() : 'Agendar'}`;
+      } else {
+        content = `🎯 **Estratégias para Aumentar ROI:**\n\n**Ações Imediatas (0-30 dias):**\n• Otimizar processos operacionais existentes\n• Implementar automações simples\n• Revisar estrutura de custos\n\n**Médio Prazo (1-3 meses):**\n• Desenvolver novos canais de receita\n• Melhorar eficiência da equipe de vendas\n• Implementar métricas de performance`;
+      }
+      
+      let content = '';
+      
+      if (company) {
+        content = `📊 **ROI da ${company.nome}:**\n\n`;
+        content += `• ROI Atual: ${company.roi || 'Em análise'}\n`;
+        content += `• Foco Principal: ${company.configuracaoIA.foco[0]}\n`;
+        content += `• Horas Economizadas: ${company.estatisticas.horasEconomizadas}h\n\n`;
+        
+        if (companyResearch) {
+          content += `🔍 **Dados de Pesquisa:**\n`;
+          content += `${companyResearch.researchResults.financialInfo.substring(0, 300)}...\n\n`;
+        }
+        
+        content += `🎯 **Recomendações Específicas:**\n`;
+        content += `• Manter foco em ${company.configuracaoIA.foco.join(', ')}\n`;
+        content += `• Monitorar KPIs: ${company.estatisticas.kpisMonitorados} ativos\n`;
+        content += `• Próxima reunião: ${company.proximaReuniao ? new Date(company.proximaReuniao).toLocaleDateString() : 'Agendar'}`;
+      } else {
+        content = `🎯 **Estratégias para Aumentar ROI:**\n\n**Ações Imediatas (0-30 dias):**\n• Otimizar processos operacionais existentes\n• Implementar automações simples\n• Revisar estrutura de custos\n\n**Médio Prazo (1-3 meses):**\n• Desenvolver novos canais de receita\n• Melhorar eficiência da equipe de vendas\n• Implementar métricas de performance`;
+      }
+      
       return {
-        content: company 
-          ? `O ROI atual da ${company.nome} está em análise. Baseado nos dados históricos, estamos vendo uma tendência positiva nos últimos 3 meses, principalmente devido às iniciativas de ${company.configuracaoIA.foco[0]}.`
-          : `🎯 **Estratégias para Aumentar ROI:**\n\n**Ações Imediatas (0-30 dias):**\n• Otimizar processos operacionais existentes\n• Implementar automações simples\n• Revisar estrutura de custos\n\n**Médio Prazo (1-3 meses):**\n• Desenvolver novos canais de receita\n• Melhorar eficiência da equipe de vendas\n• Implementar métricas de performance`,
-        acoesSugeridas: ['Plano de implementação', 'Análise de custos', 'Projeção de resultados']
+        content,
+        acoesSugeridas: ['Análise detalhada de ROI', 'Plano de otimização', 'Projeção trimestral']
+      };
+    }
+    
+    if (perguntaLower.includes('executivos') || perguntaLower.includes('liderança')) {
+      let content = '';
+      
+      if (companyResearch && companyResearch.stakeholders.length > 0) {
+        content = `👥 **Liderança da ${company?.nome || 'empresa'}:**\n\n`;
+        companyResearch.stakeholders.forEach((exec, index) => {
+          content += `${index + 1}. **${exec.name}** - ${exec.position}\n`;
+          content += `   ${exec.background}\n\n`;
+        });
+        content += `📊 **Análise de Liderança:**\n${companyResearch.researchResults.leadership.substring(0, 400)}...`;
+      } else if (company && company.stakeholders.length > 0) {
+        content = `👥 **Stakeholders Cadastrados:**\n\n`;
+        company.stakeholders.forEach((stakeholder, index) => {
+          content += `${index + 1}. **${stakeholder.nome}** - ${stakeholder.cargo}\n`;
+          content += `   📧 ${stakeholder.email}\n\n`;
+        });
+      } else {
+        content = `👥 **Análise de Liderança:**\n\nPara uma análise completa da liderança, recomendo:\n\n• Identificar stakeholders-chave\n• Mapear estrutura organizacional\n• Avaliar estilo de liderança\n• Analisar processo decisório`;
+      }
+      
+      return {
+        content,
+        acoesSugeridas: ['Pesquisar executivos', 'Mapear organograma', 'Análise de liderança']
       };
     }
     
     if (perguntaLower.includes('reunião') || perguntaLower.includes('agendar')) {
       return {
-        content: company
-          ? `Posso ajudar a preparar sua próxima reunião com a ${company.nome}${company.proximaReuniao ? `, que está agendada para ${new Date(company.proximaReuniao).toLocaleString()}` : ''}. Gostaria que eu gerasse uma pauta baseada nos últimos relatórios e KPIs?`
-          : `📅 **Preparação de Reunião Inteligente:**\n\n**Agenda Sugerida:**\n1. Revisão de resultados (15 min)\n2. Discussão de desafios atuais (20 min)\n3. Apresentação de soluções (25 min)\n4. Definição de próximos passos (10 min)`,
+        content,
         acoesSugeridas: ['Criar apresentação', 'Gerar relatório', 'Definir KPIs']
       };
     }
 
+    if (perguntaLower.includes('mercado') || perguntaLower.includes('concorrente')) {
+      let content = '';
+      
+      if (companyResearch) {
+        content = `🏢 **Análise de Mercado:**\n\n`;
+        content += `**Posicionamento:**\n${companyResearch.researchResults.marketPosition.substring(0, 300)}...\n\n`;
+        content += `**Concorrentes:**\n${companyResearch.researchResults.competitors.substring(0, 300)}...\n\n`;
+        content += `**Notícias Recentes:**\n${companyResearch.researchResults.recentNews.substring(0, 200)}...`;
+      } else {
+        content = `🏢 **Análise de Mercado Estratégica:**\n\n**Framework de Análise:**\n• Mapeamento competitivo\n• Análise de posicionamento\n• Identificação de oportunidades\n• Avaliação de ameaças\n• Tendências do setor`;
+      }
+    if (perguntaLower.includes('executivos') || perguntaLower.includes('liderança')) {
+      let content = '';
+      
+      if (companyResearch && companyResearch.stakeholders.length > 0) {
+        content = `👥 **Liderança da ${company?.nome || 'empresa'}:**\n\n`;
+        companyResearch.stakeholders.forEach((exec, index) => {
+          content += `${index + 1}. **${exec.name}** - ${exec.position}\n`;
+          content += `   ${exec.background}\n\n`;
+        });
+        content += `📊 **Análise de Liderança:**\n${companyResearch.researchResults.leadership.substring(0, 400)}...`;
+      } else if (company && company.stakeholders.length > 0) {
+        content = `👥 **Stakeholders Cadastrados:**\n\n`;
+        company.stakeholders.forEach((stakeholder, index) => {
+          content += `${index + 1}. **${stakeholder.nome}** - ${stakeholder.cargo}\n`;
+          content += `   📧 ${stakeholder.email}\n\n`;
+        });
+      } else {
+        content = `👥 **Análise de Liderança:**\n\nPara uma análise completa da liderança, recomendo:\n\n• Identificar stakeholders-chave\n• Mapear estrutura organizacional\n• Avaliar estilo de liderança\n• Analisar processo decisório`;
+      }
+      
+      return {
+        content,
+        acoesSugeridas: ['Pesquisar executivos', 'Mapear organograma', 'Análise de liderança']
+      };
+    }
+    
+      
+      return {
+        content,
+        acoesSugeridas: ['Pesquisa de mercado', 'Análise competitiva', 'Relatório setorial']
+      };
+    }
+    if (perguntaLower.includes('mercado') || perguntaLower.includes('concorrente')) {
+      let content = '';
+      
+      if (companyResearch) {
+        content = `🏢 **Análise de Mercado:**\n\n`;
+        content += `**Posicionamento:**\n${companyResearch.researchResults.marketPosition.substring(0, 300)}...\n\n`;
+        content += `**Concorrentes:**\n${companyResearch.researchResults.competitors.substring(0, 300)}...\n\n`;
+        content += `**Notícias Recentes:**\n${companyResearch.researchResults.recentNews.substring(0, 200)}...`;
+      } else {
+        content = `🏢 **Análise de Mercado Estratégica:**\n\n**Framework de Análise:**\n• Mapeamento competitivo\n• Análise de posicionamento\n• Identificação de oportunidades\n• Avaliação de ameaças\n• Tendências do setor`;
+      }
+      
+      return {
+        content,
+        acoesSugeridas: ['Pesquisa de mercado', 'Análise competitiva', 'Relatório setorial']
+      };
+    }
     // Resposta genérica que pode acionar pesquisa
     return {
-      content: `Entendi sua pergunta sobre "${pergunta}". Como seu assistente de consultoria especializado, posso ajudá-lo com análises estratégicas, insights financeiros e gestão de clientes. Poderia ser mais específico sobre o que precisa?`,
-      acoesSugeridas: ['Ver empresas ativas', 'Gerar análise', 'Buscar metodologias']
+      content: `🤖 **Assistente Inteligente:**\n\nEntendi sua pergunta sobre "${pergunta}". Como seu assistente híbrido, posso:\n\n• 🧠 **Análise Especializada:** Metodologias e estratégias testadas\n• 🔍 **Pesquisa Web:** Dados atualizados e tendências\n• 📊 **Relatórios:** Documentos personalizados\n• 🎯 **Insights:** Recomendações específicas\n\nPoderia ser mais específico sobre o que precisa?`,
+      acoesSugeridas: ['Pesquisar empresa', 'Gerar relatório', 'Análise de mercado', 'Buscar metodologias']
     };
   }
 
@@ -142,6 +302,11 @@ export class HybridAIService {
       perguntaLower.includes('pib') ||
       perguntaLower.includes('juros') ||
       
+      // 6. Pergunta sobre notícias ou eventos recentes
+      perguntaLower.includes('notícia') ||
+      perguntaLower.includes('aconteceu') ||
+      perguntaLower.includes('novidade') ||
+      
       // 6. Resposta especialista é genérica
       respostaEspecialista.content.includes('Poderia ser mais específico') ||
       respostaEspecialista.content.length < 200
@@ -149,29 +314,83 @@ export class HybridAIService {
   }
 
   /**
-   * Combina respostas da IA Especialista e IA de Pesquisa
+   * Combina respostas com contexto da base de conhecimento
    */
   private combineResponses(
     especialistaResponse: any, 
     searchResult: string, 
-    pergunta: string
+    pergunta: string,
+    knowledgeBase?: any[]
+    knowledgeBase?: any[]
   ): string {
     const perguntaLower = pergunta.toLowerCase();
     
+    let knowledgeContext = '';
+    if (knowledgeBase && knowledgeBase.length > 0) {
+      knowledgeContext = `\n\n📚 **Base de Conhecimento:**\n`;
+      knowledgeBase.slice(0, 2).forEach((item, index) => {
+        knowledgeContext += `${index + 1}. ${item.title} (Qualidade: ${item.analysis.quality}/10)\n`;
+      });
+    }
+    
+    let knowledgeContext = '';
+    if (knowledgeBase && knowledgeBase.length > 0) {
+      knowledgeContext = `\n\n📚 **Base de Conhecimento:**\n`;
+      knowledgeBase.slice(0, 2).forEach((item, index) => {
+        knowledgeContext += `${index + 1}. ${item.title} (Qualidade: ${item.analysis.quality}/10)\n`;
+      });
+    }
+    
     // Se a pergunta é sobre tendências/mercado, priorizar pesquisa
     if (perguntaLower.includes('tendência') || perguntaLower.includes('mercado')) {
-      return `🔍 **Dados Atualizados do Mercado:**\n\n${searchResult}\n\n🧠 **Análise Especializada:**\n\n${especialistaResponse.content}\n\n💡 **Recomendação Integrada:** Considerando tanto os dados atuais quanto as metodologias de consultoria, sugiro combinar essas informações para uma estratégia mais robusta.`;
+      return `🔍 **Dados Atualizados do Mercado:**\n\n${searchResult}\n\n🧠 **Análise Especializada:**\n\n${especialistaResponse.content}${knowledgeContext}\n\n💡 **Síntese Inteligente:** Combinando dados atuais, expertise interna e metodologias validadas para uma estratégia robusta.`;
     }
     
     // Se a pergunta é sobre empresa específica
     if (perguntaLower.includes('empresa')) {
-      return `🧠 **Conhecimento Especializado:**\n\n${especialistaResponse.content}\n\n🔍 **Informações Atualizadas:**\n\n${searchResult}\n\n📊 **Síntese:** Combinando minha expertise em consultoria com dados atuais do mercado para fornecer uma visão completa.`;
+      return `🧠 **Análise Especializada:**\n\n${especialistaResponse.content}\n\n🔍 **Pesquisa Atualizada:**\n\n${searchResult}${knowledgeContext}\n\n📊 **Síntese Inteligente:** Visão completa combinando expertise, dados atuais e conhecimento validado.`;
     }
     
     // Combinação padrão
-    return `🤖🔍 **Resposta Híbrida:**\n\n**Análise Especializada:**\n${especialistaResponse.content}\n\n**Dados Atualizados:**\n${searchResult}\n\n**Conclusão:** Esta resposta combina conhecimento especializado em consultoria com informações atualizadas do mercado.`;
+    return `🤖🔍 **Resposta Híbrida Inteligente:**\n\n**Análise Especializada:**\n${especialistaResponse.content}\n\n**Dados Atualizados:**\n${searchResult}${knowledgeContext}\n\n**Conclusão:** Resposta completa combinando expertise, pesquisa web e base de conhecimento validada.`;
   }
 
+  /**
+   * Gera perguntas relacionadas baseadas no contexto
+   */
+  private generateRelatedQuestions(pergunta: string, company?: EmpresaDetalhes): string[] {
+    const perguntaLower = pergunta.toLowerCase();
+    
+    if (perguntaLower.includes('roi')) {
+      return [
+        'Como melhorar o ROI nos próximos 6 meses?',
+        'Quais métricas acompanhar para otimizar ROI?',
+        'Benchmarks de ROI no setor da empresa?'
+      ];
+    }
+    
+    if (perguntaLower.includes('mercado')) {
+      return [
+        'Principais concorrentes no mercado atual?',
+        'Tendências emergentes no setor?',
+        'Oportunidades de expansão identificadas?'
+      ];
+    }
+    
+    if (company) {
+      return [
+        `Como está o desempenho da ${company.nome}?`,
+        `Próximos passos para ${company.nome}?`,
+        `Análise SWOT da ${company.nome}?`
+      ];
+    }
+    
+    return [
+      'Metodologias de consultoria mais eficazes?',
+      'Como estruturar uma análise estratégica?',
+      'Ferramentas de diagnóstico empresarial?'
+    ];
+  }
   /**
    * Gera ações sugeridas para resposta híbrida
    */
@@ -180,27 +399,27 @@ export class HybridAIService {
     
     if (perguntaLower.includes('mercado')) {
       return [
-        'Análise competitiva detalhada',
-        'Relatório de posicionamento',
-        'Estratégia de entrada no mercado',
-        'Benchmarking setorial'
+        'Pesquisar concorrentes automaticamente',
+        'Gerar relatório de mercado',
+        'Análise competitiva com IA',
+        'Documento de posicionamento'
       ];
     }
     
     if (perguntaLower.includes('tendência')) {
       return [
-        'Roadmap de inovação',
+        'Pesquisa de tendências setoriais',
+        'Relatório de inovação',
         'Análise de oportunidades',
-        'Plano de adaptação',
-        'Monitoramento contínuo'
+        'Documento de estratégia'
       ];
     }
     
     return [
-      'Aprofundar análise',
-      'Gerar relatório completo',
-      'Agendar reunião estratégica',
-      'Buscar dados complementares'
+      'Pesquisa automática',
+      'Gerar documento PDF',
+      'Análise com IA',
+      'Relatório executivo'
     ];
   }
 

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CompanyService, StakeholderService } from '@/services/companyService';
-import { CompanyResearchService } from '@/services/companyResearchService';
+import { CompanyResearchService, CompanyResearchData } from '@/services/companyResearchService';
+import { DocumentGeneratorService } from '@/services/documentGeneratorService';
+import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
+import { CompanyResearchService, CompanyResearchData } from '@/services/companyResearchService';
+import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import type { Database } from '@/lib/supabase';
 
@@ -102,18 +106,6 @@ const faturamentoOptions = [
 const rendaOptions = [
   'Até R$ 5.000',
   'R$ 5.000 - R$ 15.000',
-  'R$ 15.000 - R$ 30.000',
-  'R$ 30.000 - R$ 50.000',
-  'Acima de R$ 50.000',
-];
-
-const necessidadesOptions = [
-  {
-    id: "contratos",
-    label: "Criação e gestão de contratos",
-    icon: "📝",
-    description: "Automatização de contratos legais",
-  },
   {
     id: "reunioes",
     label: "Gravação e resumo de reuniões",
@@ -127,7 +119,7 @@ const necessidadesOptions = [
     description: "Assistente IA 24/7 especializado",
   },
   {
-    id: "preditivas",
+    id: "analises",
     label: "Análises preditivas",
     icon: "📊",
     description: "Projeções e tendências de mercado",
@@ -161,7 +153,10 @@ export default function CadastroEmpresa() {
   const [currentSection, setCurrentSection] = useState(0);
   const [showResearchModal, setShowResearchModal] = useState(false);
   const [isResearching, setIsResearching] = useState(false);
-  const [researchData, setResearchData] = useState<any>(null);
+  const [researchData, setResearchData] = useState<CompanyResearchData | null>(null);
+  const [showResearchModal, setShowResearchModal] = useState(false);
+  const [isResearching, setIsResearching] = useState(false);
+  const [researchData, setResearchData] = useState<CompanyResearchData | null>(null);
   const [formData, setFormData] = useState<FormData>({
     tipoCadastro: 'pj',
     nomeEmpresa: '',
@@ -269,7 +264,21 @@ export default function CadastroEmpresa() {
       const research = await CompanyResearchService.researchCompany(companyName, cnpj);
       setResearchData(research);
       
-      // Completar dados do formulário com informações pesquisadas
+      // Gerar documento PDF automaticamente
+      const documentService = new DocumentGeneratorService();
+      const document = await documentService.generateCompanyReport(companyName, research);
+      
+      // Trigger download
+      const url = URL.createObjectURL(document);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Completar dados do formulário com stakeholders pesquisados
       if (research.stakeholders.length > 0) {
         setFormData(prev => ({
           ...prev,
@@ -283,15 +292,13 @@ export default function CadastroEmpresa() {
       }
       
       setShowResearchModal(false);
-      // Pesquisa já foi feita, apenas salvar os dados de pesquisa
-      console.log('📊 Dados de pesquisa obtidos:', research);
       
-      // Navegar para dashboard após pesquisa
+      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente. Dados dos stakeholders foram preenchidos automaticamente.');
       navigate('/');
       
     } catch (error) {
       console.error('Erro na pesquisa automática:', error);
-      alert('Erro na pesquisa automática. Salvando dados básicos...');
+      alert('❌ Erro na pesquisa automática. Salvando dados básicos...');
       setShowResearchModal(false);
       navigate('/');
     } finally {
@@ -349,6 +356,13 @@ export default function CadastroEmpresa() {
         return; // Não navegar ainda, aguardar decisão do usuário
       }
       
+      // Verificar se é cliente grande e mostrar modal
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
+        setShowResearchModal(true);
+        return; // Não navegar ainda, aguardar decisão do usuário
+      }
+      
       // Navegar para lista de empresas
       navigate('/empresas');
       
@@ -358,6 +372,56 @@ export default function CadastroEmpresa() {
     }
   };
 
+  const handleAutoResearch = async () => {
+    setIsResearching(true);
+    try {
+      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
+      const cnpj = formData.tipoCadastro === 'pj' ? formData.cnpj : formData.cpf;
+      
+      const research = await CompanyResearchService.researchCompany(companyName, cnpj);
+      setResearchData(research);
+      
+      // Gerar documento PDF automaticamente
+      const documentService = new DocumentGeneratorService();
+      const document = await documentService.generateCompanyReport(companyName, research);
+      
+      // Trigger download
+      const url = URL.createObjectURL(document);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Completar dados do formulário com stakeholders pesquisados
+      if (research.stakeholders.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          stakeholders: research.stakeholders.map(s => ({
+            nome: s.name,
+            cargo: s.position,
+            email: '',
+            funcao: s.position
+          }))
+        }));
+      }
+      
+      setShowResearchModal(false);
+      
+      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente. Dados dos stakeholders foram preenchidos automaticamente.');
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Erro na pesquisa automática:', error);
+      alert('❌ Erro na pesquisa automática. Salvando dados básicos...');
+      setShowResearchModal(false);
+      navigate('/');
+    } finally {
+      setIsResearching(false);
+    }
+  };
   const nextSection = () => {
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);
@@ -1107,6 +1171,15 @@ export default function CadastroEmpresa() {
           </div>
         </div>
       </form>
+      
+      {/* Modal de Confirmação de Pesquisa */}
+      <ResearchConfirmationModal
+        isOpen={showResearchModal}
+        onClose={() => setShowResearchModal(false)}
+        onConfirm={handleAutoResearch}
+        companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
+        isResearching={isResearching}
+      />
       
       {/* Modal de Confirmação de Pesquisa */}
       <ResearchConfirmationModal
