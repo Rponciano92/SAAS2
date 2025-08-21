@@ -257,32 +257,10 @@ export default function GamificationDashboard() {
                 <div className="flex justify-end">
                   <button className="px-4 py-2 bg-white/10 text-[#003B6D] rounded-lg hover:bg-white/20 transition-colors text-sm flex items-center space-x-2">
                     <Brain size={14} />
-                    </div>
-                    
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-[#003B6D] mb-1">
-                        {challenge.objective}
-                      </p>
-                      <div className="w-full bg-white/20 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-[#FFA500] to-[#FF8C00] h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${progressPercentage}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600 mt-1">
-                        <span>Progresso: {progress}/{challenge.maxProgress}</span>
-                        <span>{progressPercentage}%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <button className="px-4 py-2 bg-white/10 text-[#003B6D] rounded-lg hover:bg-white/20 transition-colors text-sm">
-                        Ver Detalhes
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                    <span>Contribuir</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           
