@@ -110,6 +110,12 @@ const faturamentoOptions = [
 
 const rendaOptions = [
   'Até R$ 5.000',
+  'R$ 5.000 - R$ 15.000',
+  'R$ 15.000 - R$ 30.000',
+  'R$ 30.000 - R$ 50.000',
+  'Acima de R$ 50.000',
+];
+
 const funcaoOptions = [
   "CEO/Presidente",
   "Diretor",
@@ -725,6 +731,9 @@ export default function CadastroEmpresa() {
                   />
                   <h3 className="font-semibold">{necessidade.label}</h3>
                 </div>
+                <p className="caption-text text-gray-600">
+                  {necessidade.description}
+                </p>
               </div>
             </div>
           </div>
