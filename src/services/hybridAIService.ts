@@ -16,6 +16,10 @@ export interface HybridAIResponse {
   relatedQuestions?: string[];
   acoesSugeridas?: string[];
 }
+
+export class HybridAIService {
+  private knowledgeBaseService: KnowledgeBaseService;
+
   constructor() {
     this.knowledgeBaseService = new KnowledgeBaseService();
   }
