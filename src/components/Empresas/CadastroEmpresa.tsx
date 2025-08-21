@@ -5,9 +5,6 @@ import { CompanyService, StakeholderService } from '@/services/companyService';
 import { CompanyResearchService, CompanyResearchData } from '@/services/companyResearchService';
 import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
-import { CompanyResearchService, CompanyResearchData } from '@/services/companyResearchService';
-import { DocumentGeneratorService } from '@/services/documentGeneratorService';
-import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import type { Database } from '@/lib/supabase';
 
 interface FormData {
@@ -151,9 +148,6 @@ const funcaoOptions = [
 export default function CadastroEmpresa() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
-  const [showResearchModal, setShowResearchModal] = useState(false);
-  const [isResearching, setIsResearching] = useState(false);
-  const [researchData, setResearchData] = useState<CompanyResearchData | null>(null);
   const [showResearchModal, setShowResearchModal] = useState(false);
   const [isResearching, setIsResearching] = useState(false);
   const [researchData, setResearchData] = useState<CompanyResearchData | null>(null);
@@ -348,13 +342,6 @@ export default function CadastroEmpresa() {
       }
 
       alert('Cliente cadastrado com sucesso!');
-      
-      // Verificar se é cliente grande e mostrar modal
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      if (CompanyResearchService.isLargeClient(formData) && companyName.trim()) {
-        setShowResearchModal(true);
-        return; // Não navegar ainda, aguardar decisão do usuário
-      }
       
       // Verificar se é cliente grande e mostrar modal
       const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
@@ -1171,15 +1158,6 @@ export default function CadastroEmpresa() {
           </div>
         </div>
       </form>
-      
-      {/* Modal de Confirmação de Pesquisa */}
-      <ResearchConfirmationModal
-        isOpen={showResearchModal}
-        onClose={() => setShowResearchModal(false)}
-        onConfirm={handleAutoResearch}
-        companyName={formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto}
-        isResearching={isResearching}
-      />
       
       {/* Modal de Confirmação de Pesquisa */}
       <ResearchConfirmationModal

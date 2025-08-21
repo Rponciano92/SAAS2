@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Search, Filter, Tag, Eye, Download, Star, Clock, User, Plus, Brain, Upload } from 'lucide-react';
 import { KnowledgeBaseService, KnowledgeItem, ContentMetadata } from '@/services/knowledgeBaseService';
-import { KnowledgeBaseService, KnowledgeItem, ContentMetadata } from '@/services/knowledgeBaseService';
 
 interface ConhecimentoItem {
   id: string;
@@ -86,16 +85,6 @@ export default function BaseConhecimento() {
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [filtroTipo, setFiltroTipo] = useState('Todos');
   const [selectedItem, setSelectedItem] = useState<ConhecimentoItem | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newContent, setNewContent] = useState({
-    title: '',
-    content: '',
-    type: 'article' as const,
-    tags: '',
-    author: 'Usuário Atual'
-  });
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const knowledgeService = new KnowledgeBaseService();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newContent, setNewContent] = useState({
     title: '',
@@ -241,13 +230,6 @@ export default function BaseConhecimento() {
             <Brain size={16} />
             <span>IA Analisadora</span>
           </button>
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="bg-gradient-to-r from-[#28A745] to-[#20C997] px-4 py-2 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
-          >
-            <Brain size={16} />
-            <span>IA Analisadora</span>
-          </button>
         </div>
       </div>
 
@@ -322,166 +304,6 @@ export default function BaseConhecimento() {
           )}
         </div>
         
-        {/* Modal para Adicionar Conhecimento */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-[#003B6D] flex items-center space-x-2">
-                  <Brain className="text-[#0A74DA]" size={24} />
-                  <span>🧠 Adicionar Conhecimento com IA</span>
-                </h3>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#003B6D] mb-2">
-                    Título do Conhecimento *
-                  </label>
-                  <input
-                    type="text"
-                    value={newContent.title}
-                    onChange={(e) => setNewContent(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#0A74DA] focus:border-transparent"
-                    placeholder="Ex: Metodologia de Análise SWOT para Startups"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#003B6D] mb-2">
-                      Tipo de Conteúdo *
-                    </label>
-                    <select
-                      value={newContent.type}
-                      onChange={(e) => setNewContent(prev => ({ ...prev, type: e.target.value as any }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#0A74DA] focus:border-transparent"
-                    >
-                      <option value="article">Artigo</option>
-                      <option value="methodology">Metodologia</option>
-                      <option value="case_study">Case Study</option>
-                      <option value="research">Pesquisa</option>
-                      <option value="document">Documento</option>
-                      <option value="note">Nota</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-[#003B6D] mb-2">
-                      Tags (separadas por vírgula)
-                    </label>
-                    <input
-                      type="text"
-                      value={newContent.tags}
-                      onChange={(e) => setNewContent(prev => ({ ...prev, tags: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#0A74DA] focus:border-transparent"
-                      placeholder="estratégia, análise, swot"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-[#003B6D] mb-2">
-                    Conteúdo *
-                  </label>
-                  <textarea
-                    value={newContent.content}
-                    onChange={(e) => setNewContent(prev => ({ ...prev, content: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#0A74DA] focus:border-transparent resize-none"
-                    rows={8}
-                    placeholder="Digite o conteúdo do conhecimento que será analisado pela IA..."
-                  />
-                </div>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-800 mb-2 flex items-center space-x-2">
-                    <Brain size={16} />
-                    <span>Como funciona a IA Analisadora:</span>
-                  </h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Avalia qualidade e relevância do conteúdo (0-10)</li>
-                    <li>• Categoriza automaticamente por área</li>
-                    <li>• Gera tags inteligentes</li>
-                    <li>• Aprova/rejeita baseado em critérios de qualidade</li>
-                    <li>• Fornece feedback construtivo</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="flex space-x-3 mt-6">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!newContent.title || !newContent.content) {
-                      alert('Preencha título e conteúdo');
-                      return;
-                    }
-                    
-                    try {
-                      setIsAnalyzing(true);
-                      
-                      const metadata: ContentMetadata = {
-                        author: newContent.author,
-                        source: 'manual_input',
-                        tags: newContent.tags.split(',').map(t => t.trim()).filter(Boolean),
-                        type: newContent.type,
-                        dateCreated: new Date(),
-                        language: 'pt-BR'
-                      };
-                      
-                      const result = await knowledgeService.addToKnowledgeBase(
-                        newContent.title,
-                        newContent.content,
-                        metadata
-                      );
-                      
-                      alert(`✅ Conteúdo analisado pela IA!\n\nQualidade: ${result.analysis.quality}/10\nRelevância: ${result.analysis.relevance}/10\nStatus: ${result.status === 'approved' ? 'Aprovado' : 'Pendente'}\n\nFeedback: ${result.analysis.feedback.substring(0, 200)}...`);
-                      
-                      setShowAddModal(false);
-                      setNewContent({
-                        title: '',
-                        content: '',
-                        type: 'article',
-                        tags: '',
-                        author: 'Usuário Atual'
-                      });
-                      
-                    } catch (error) {
-                      alert(`❌ Erro ao analisar conteúdo: ${error.message}`);
-                    } finally {
-                      setIsAnalyzing(false);
-                    }
-                  }}
-                  disabled={isAnalyzing || !newContent.title || !newContent.content}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Analisando com IA...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Brain size={16} />
-                      <span>Analisar com IA</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
         {/* Modal para Adicionar Conhecimento */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

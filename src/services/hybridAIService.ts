@@ -24,12 +24,6 @@ export class HybridAIService {
     this.knowledgeBaseService = new KnowledgeBaseService();
   }
   
-  private knowledgeBaseService: KnowledgeBaseService;
-  
-  constructor() {
-    this.knowledgeBaseService = new KnowledgeBaseService();
-  }
-  
   /**
    * Gera resposta usando sistema híbrido com contexto enriquecido
    */
@@ -38,15 +32,9 @@ export class HybridAIService {
     company?: EmpresaDetalhes, 
     context?: string,
     companyResearch?: CompanyResearchData
-    companyResearch?: CompanyResearchData
   ): Promise<HybridAIResponse> {
     try {
       console.log('🤖 Iniciando resposta híbrida para:', pergunta);
-
-      // 1. Buscar conhecimento relevante na base
-      const relevantKnowledge = await this.knowledgeBaseService.searchKnowledgeBase(pergunta, {
-        minQuality: 7
-      });
 
       // 1. Buscar conhecimento relevante na base
       const relevantKnowledge = await this.knowledgeBaseService.searchKnowledgeBase(pergunta, {
@@ -107,35 +95,11 @@ export class HybridAIService {
     company?: EmpresaDetalhes, 
     companyResearch?: CompanyResearchData,
     knowledgeBase?: any[]
-    companyResearch?: CompanyResearchData,
-    knowledgeBase?: any[]
   ) {
     const perguntaLower = pergunta.toLowerCase();
     
     // Respostas enriquecidas com dados de pesquisa
-    // Respostas enriquecidas com dados de pesquisa
     if (perguntaLower.includes('roi') || perguntaLower.includes('retorno')) {
-      let content = '';
-      
-      if (company) {
-        content = `📊 **ROI da ${company.nome}:**\n\n`;
-        content += `• ROI Atual: ${company.roi || 'Em análise'}\n`;
-        content += `• Foco Principal: ${company.configuracaoIA.foco[0]}\n`;
-        content += `• Horas Economizadas: ${company.estatisticas.horasEconomizadas}h\n\n`;
-        
-        if (companyResearch) {
-          content += `🔍 **Dados de Pesquisa:**\n`;
-          content += `${companyResearch.researchResults.financialInfo.substring(0, 300)}...\n\n`;
-        }
-        
-        content += `🎯 **Recomendações Específicas:**\n`;
-        content += `• Manter foco em ${company.configuracaoIA.foco.join(', ')}\n`;
-        content += `• Monitorar KPIs: ${company.estatisticas.kpisMonitorados} ativos\n`;
-        content += `• Próxima reunião: ${company.proximaReuniao ? new Date(company.proximaReuniao).toLocaleDateString() : 'Agendar'}`;
-      } else {
-        content = `🎯 **Estratégias para Aumentar ROI:**\n\n**Ações Imediatas (0-30 dias):**\n• Otimizar processos operacionais existentes\n• Implementar automações simples\n• Revisar estrutura de custos\n\n**Médio Prazo (1-3 meses):**\n• Desenvolver novos canais de receita\n• Melhorar eficiência da equipe de vendas\n• Implementar métricas de performance`;
-      }
-      
       let content = '';
       
       if (company) {
@@ -188,57 +152,7 @@ export class HybridAIService {
         acoesSugeridas: ['Pesquisar executivos', 'Mapear organograma', 'Análise de liderança']
       };
     }
-    
-    if (perguntaLower.includes('reunião') || perguntaLower.includes('agendar')) {
-      return {
-        content,
-        acoesSugeridas: ['Criar apresentação', 'Gerar relatório', 'Definir KPIs']
-      };
-    }
 
-    if (perguntaLower.includes('mercado') || perguntaLower.includes('concorrente')) {
-      let content = '';
-      
-      if (companyResearch) {
-        content = `🏢 **Análise de Mercado:**\n\n`;
-        content += `**Posicionamento:**\n${companyResearch.researchResults.marketPosition.substring(0, 300)}...\n\n`;
-        content += `**Concorrentes:**\n${companyResearch.researchResults.competitors.substring(0, 300)}...\n\n`;
-        content += `**Notícias Recentes:**\n${companyResearch.researchResults.recentNews.substring(0, 200)}...`;
-      } else {
-        content = `🏢 **Análise de Mercado Estratégica:**\n\n**Framework de Análise:**\n• Mapeamento competitivo\n• Análise de posicionamento\n• Identificação de oportunidades\n• Avaliação de ameaças\n• Tendências do setor`;
-      }
-    if (perguntaLower.includes('executivos') || perguntaLower.includes('liderança')) {
-      let content = '';
-      
-      if (companyResearch && companyResearch.stakeholders.length > 0) {
-        content = `👥 **Liderança da ${company?.nome || 'empresa'}:**\n\n`;
-        companyResearch.stakeholders.forEach((exec, index) => {
-          content += `${index + 1}. **${exec.name}** - ${exec.position}\n`;
-          content += `   ${exec.background}\n\n`;
-        });
-        content += `📊 **Análise de Liderança:**\n${companyResearch.researchResults.leadership.substring(0, 400)}...`;
-      } else if (company && company.stakeholders.length > 0) {
-        content = `👥 **Stakeholders Cadastrados:**\n\n`;
-        company.stakeholders.forEach((stakeholder, index) => {
-          content += `${index + 1}. **${stakeholder.nome}** - ${stakeholder.cargo}\n`;
-          content += `   📧 ${stakeholder.email}\n\n`;
-        });
-      } else {
-        content = `👥 **Análise de Liderança:**\n\nPara uma análise completa da liderança, recomendo:\n\n• Identificar stakeholders-chave\n• Mapear estrutura organizacional\n• Avaliar estilo de liderança\n• Analisar processo decisório`;
-      }
-      
-      return {
-        content,
-        acoesSugeridas: ['Pesquisar executivos', 'Mapear organograma', 'Análise de liderança']
-      };
-    }
-    
-      
-      return {
-        content,
-        acoesSugeridas: ['Pesquisa de mercado', 'Análise competitiva', 'Relatório setorial']
-      };
-    }
     if (perguntaLower.includes('mercado') || perguntaLower.includes('concorrente')) {
       let content = '';
       
@@ -321,17 +235,8 @@ export class HybridAIService {
     searchResult: string, 
     pergunta: string,
     knowledgeBase?: any[]
-    knowledgeBase?: any[]
   ): string {
     const perguntaLower = pergunta.toLowerCase();
-    
-    let knowledgeContext = '';
-    if (knowledgeBase && knowledgeBase.length > 0) {
-      knowledgeContext = `\n\n📚 **Base de Conhecimento:**\n`;
-      knowledgeBase.slice(0, 2).forEach((item, index) => {
-        knowledgeContext += `${index + 1}. ${item.title} (Qualidade: ${item.analysis.quality}/10)\n`;
-      });
-    }
     
     let knowledgeContext = '';
     if (knowledgeBase && knowledgeBase.length > 0) {
