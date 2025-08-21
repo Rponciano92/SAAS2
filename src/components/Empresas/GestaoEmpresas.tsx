@@ -11,6 +11,7 @@ export default function GestaoEmpresas() {
   const [selectedSetor, setSelectedSetor] = useState('todos');
   const [selectedStatus, setSelectedStatus] = useState('todos');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [researchingId, setResearchingId] = useState<string | null>(null);
 
   const setorOptions = ['Tecnologia', 'Varejo', 'Indústria', 'Serviços', 'Saúde', 'Educação', 'Financeiro', 'Agronegócio', 'Construção'];
 
@@ -270,6 +271,23 @@ export default function GestaoEmpresas() {
               >
                 <Edit size={14} />
                 <span>Editar</span>
+              </button>
+              
+              <button
+                onClick={() => handleResearchCompany(company.id, company.nome)}
+                disabled={researchingId === company.id}
+                className={`px-3 py-2 rounded-lg transition-all text-sm flex items-center justify-center ${
+                  researchingId === company.id
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#28A745] to-[#20C997] text-white hover:shadow-lg'
+                }`}
+                title="Pesquisar e gerar relatório"
+              >
+                {researchingId === company.id ? (
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <FileText size={14} />
+                )}
               </button>
               
               <button

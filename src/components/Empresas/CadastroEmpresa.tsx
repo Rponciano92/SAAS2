@@ -208,21 +208,7 @@ export default function CadastroEmpresa() {
       // Fazer pesquisa com API corrigida
       const researchData = await CompanyResearchService.researchCompany(companyName);
       
-      // Gerar documento PDF
-      const documentService = new DocumentGeneratorService();
-      const pdfBlob = await documentService.generateCompanyReport(companyName, researchData);
-      
-      // Download automático do PDF
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${companyName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente.');
+      alert('✅ Pesquisa concluída! Dados coletados com sucesso.');
       setShowResearchModal(false);
       
     } catch (error) {
