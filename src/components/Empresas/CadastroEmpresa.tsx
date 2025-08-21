@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
