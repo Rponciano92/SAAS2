@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Plus, Search, Filter, Eye, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign, BarChart3, Calendar, Clock } from 'lucide-react';
+import { Building2, Plus, Search, Filter, Eye, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign, BarChart3, Calendar, Clock, FileText } from 'lucide-react';
 import { useCompanies } from '@/hooks/useSupabase';
 import { CompanyService } from '@/services/companyService';
 
