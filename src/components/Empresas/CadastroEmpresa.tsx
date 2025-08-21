@@ -397,15 +397,9 @@ export default function CadastroEmpresa() {
 
       console.log('🎉 Cadastro concluído com sucesso!');
       
-      // Verificar se é empresa grande e mostrar modal de pesquisa
-      const companyName = formData.tipoCadastro === 'pj' ? formData.nomeEmpresa : formData.nomeCompleto;
-      if (detectLargeCompany(formData)) {
-        console.log('🔍 Empresa grande detectada, mostrando modal de pesquisa');
-        setShowResearchModal(true);
-      } else {
-        alert('✅ Cliente cadastrado com sucesso!');
-        navigate('/empresas');
-      }
+      alert('✅ Cliente cadastrado com sucesso!');
+      // Navegar para lista de empresas
+      navigate('/empresas');
       
     } catch (error) {
       console.error('Erro ao cadastrar empresa:', error);
