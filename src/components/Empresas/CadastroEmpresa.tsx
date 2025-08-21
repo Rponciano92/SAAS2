@@ -127,7 +127,6 @@ const funcaoOptions = [
 
 export default function CadastroEmpresa() {
   const navigate = useNavigate();
-  const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
   const [showResearchModal, setShowResearchModal] = useState(false);
   const [isResearching, setIsResearching] = useState(false);
