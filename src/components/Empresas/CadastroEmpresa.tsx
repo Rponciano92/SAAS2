@@ -306,7 +306,7 @@ export default function CadastroEmpresa() {
           window.document.body.appendChild(a);
           a.click();
           window.document.body.removeChild(a);
-      // alert('✅ Pesquisa concluída! Relatório PDF baixado automaticamente.');
+          URL.revokeObjectURL(url);
         } catch (downloadError) {
           console.error('Erro no download:', downloadError);
           alert('PDF gerado com sucesso, mas houve problema no download automático.');
@@ -334,11 +334,11 @@ export default function CadastroEmpresa() {
       
       // Mostrar erro específico para o usuário
       if (error.message.includes('Rate limit') || error.message.includes('⏳')) {
-        // alert('⏳ Muitas pesquisas em pouco tempo. Os dados básicos foram salvos. Tente a pesquisa novamente em alguns minutos.');
+        alert('⏳ Muitas pesquisas em pouco tempo. Os dados básicos foram salvos. Tente a pesquisa novamente em alguns minutos.');
       } else if (error.message.includes('API key') || error.message.includes('🔑')) {
-        // alert('🔑 Problema com a configuração da API. Os dados básicos foram salvos.');
+        alert('🔑 Problema com a configuração da API. Os dados básicos foram salvos.');
       } else {
-        // alert(`❌ Erro na pesquisa automática: ${error.message}\n\nOs dados básicos foram salvos com sucesso.`);
+        alert(`❌ Erro na pesquisa automática: ${error.message}\n\nOs dados básicos foram salvos com sucesso.`);
       }
       
       // Navegar mesmo com erro na pesquisa
