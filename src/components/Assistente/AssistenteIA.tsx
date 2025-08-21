@@ -226,7 +226,7 @@ export default function AssistenteIA() {
       {/* Chat Container */}
       <div className="flex-1 flex gap-3 min-h-0 overflow-hidden relative">
         {/* Mobile Sidebar Toggle - Logo abaixo do header */}
-        <div className="md:hidden absolute top-0 left-0 right-0 z-10 backdrop-blur-sm border-b border-white/20 rounded-b-2xl" style={{ backgroundColor: '#eaf1f7' }}>
+        <div className="md:hidden absolute top-0 left-0 right-0 z-10 backdrop-blur-sm border-b border-white/20 rounded-b-2xl" style={{ backgroundColor: '#d9e4ef' }}>
           <div className="px-4 py-2 rounded-b-2xl">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
