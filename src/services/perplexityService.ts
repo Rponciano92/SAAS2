@@ -35,7 +35,7 @@ export class PerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: "sonar-small-online",
+            model: "sonar",
           messages: [
             {
               role: "system",
