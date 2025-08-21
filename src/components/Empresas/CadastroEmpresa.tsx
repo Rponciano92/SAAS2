@@ -678,4 +678,8 @@ export default function CadastroEmpresa() {
         <textarea
           value={formData.objetivos}
           onChange={(e) => handleInputChange('objetivos', e.target.value)}
-          className
+          className="w-full glass-input px-4 py-3 text-[#003B6D] rounded-xl resize-none"
+          placeholder="Descreva os objetivos estratégicos da empresa..."
+          rows={4}
+          required
+        />
