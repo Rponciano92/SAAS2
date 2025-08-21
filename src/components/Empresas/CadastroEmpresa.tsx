@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import { CompanyService, StakeholderService } from '@/services/companyService';
