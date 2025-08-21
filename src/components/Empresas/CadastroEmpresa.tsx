@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, User, Save, Plus, Trash2, Brain, History, Users, FileText } from 'lucide-react';
 import { DocumentGeneratorService } from '@/services/documentGeneratorService';
 import ResearchConfirmationModal from '@/components/Modals/ResearchConfirmationModal';
 import type { Database } from '@/lib/supabase';
+
+const necessidadesOptions = [
+  { value: 'chat', label: '💬 Chat Inteligente', icon: '💬' },
+  { value: 'reunioes', label: '📅 Gestão de Reuniões', icon: '📅' },
+  { value: 'relatorios', label: '📊 Relatórios Executivos', icon: '📊' },
+  { value: 'kpis', label: '📈 Monitoramento de KPIs', icon: '📈' },
+  { value: 'analytics', label: '🔍 Análises Preditivas', icon: '🔍' },
+  { value: 'pesquisa', label: '🔍 Pesquisa Automática', icon: '🔍' }
+];
 
 interface FormData {
   // Tipo de cadastro
@@ -100,39 +110,6 @@ const faturamentoOptions = [
 
 const rendaOptions = [
   'Até R$ 5.000',
-  'R$ 5.000 - R$ 15.000',
-  {
-    id: "reunioes",
-    label: "Gravação e resumo de reuniões",
-    icon: "📅",
-    description: "Google Meet integrado com IA",
-  },
-  {
-    id: "chat",
-    label: "Chat com insights estratégicos",
-    icon: "💬",
-    description: "Assistente IA 24/7 especializado",
-  },
-  {
-    id: "analises",
-    label: "Análises preditivas",
-    icon: "📊",
-    description: "Projeções e tendências de mercado",
-  },
-  {
-    id: "relatorios",
-    label: "Relatórios executivos",
-    icon: "📋",
-    description: "Relatórios automáticos personalizados",
-  },
-  {
-    id: "kpis",
-    label: "Monitoramento de KPIs",
-    icon: "📈",
-    description: "Dashboard de métricas estratégicas",
-  },
-];
-
 const funcaoOptions = [
   "CEO/Presidente",
   "Diretor",
@@ -143,40 +120,8 @@ const funcaoOptions = [
   "Outro",
 ];
 
-const necessidadesOptions = [
-  {
-    id: "reunioes",
-    label: "Gravação e resumo de reuniões",
-    icon: "📅",
-    description: "Google Meet integrado com IA",
-  },
-  {
-    id: "chat",
-    label: "Chat com insights estratégicos",
-    icon: "💬",
-    description: "Assistente IA 24/7 especializado",
-  },
-  {
-    id: "analises",
-    label: "Análises preditivas",
-    icon: "📊",
-    description: "Projeções e tendências de mercado",
-  },
-  {
-    id: "relatorios",
-    label: "Relatórios executivos",
-    icon: "📋",
-    description: "Relatórios automáticos personalizados",
-  },
-  {
-    id: "kpis",
-    label: "Monitoramento de KPIs",
-    icon: "📈",
-    description: "Dashboard de métricas estratégicas",
-  },
-];
-
 export default function CadastroEmpresa() {
+  const navigate = useNavigate();
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
   const [showResearchModal, setShowResearchModal] = useState(false);
@@ -760,13 +705,13 @@ export default function CadastroEmpresa() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {necessidadesOptions.map((necessidade) => (
           <div
-            key={necessidade.id}
+            key={necessidade.value}
             className={`cursor-pointer transition-all duration-200 hover:shadow-md glass-card p-4 ${
-              formData.necessidades.includes(necessidade.id)
+              formData.necessidades.includes(necessidade.value)
                 ? "border-azul-escuro bg-azul-escuro/5"
                 : "border-cinza-medio hover:border-azul-escuro/50"
             }`}
-            onClick={() => handleNecessidadeToggle(necessidade.id)}
+            onClick={() => handleNecessidadeToggle(necessidade.value)}
           >
             <div className="flex items-start gap-3">
               <div className="text-2xl">{necessidade.icon}</div>
@@ -774,15 +719,12 @@ export default function CadastroEmpresa() {
                 <div className="flex items-center gap-2 mb-2">
                   <input
                     type="checkbox"
-                    checked={formData.necessidades.includes(necessidade.id)}
-                    onChange={() => handleNecessidadeToggle(necessidade.id)}
+                    checked={formData.necessidades.includes(necessidade.value)}
+                    onChange={() => handleNecessidadeToggle(necessidade.value)}
                     className="rounded"
                   />
                   <h3 className="font-semibold">{necessidade.label}</h3>
                 </div>
-                <p className="caption-text text-gray-600">
-                  {necessidade.description}
-                </p>
               </div>
             </div>
           </div>
