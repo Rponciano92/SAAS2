@@ -731,9 +731,6 @@ export default function CadastroEmpresa() {
                   />
                   <h3 className="font-semibold">{necessidade.label}</h3>
                 </div>
-                <p className="caption-text text-gray-600">
-                  {necessidade.description}
-                </p>
               </div>
             </div>
           </div>
