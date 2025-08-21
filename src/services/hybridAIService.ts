@@ -30,6 +30,7 @@ export class HybridAIService {
   async generateResponse(
     pergunta: string, 
     company?: EmpresaDetalhes, 
+    context?: string,
     companyResearch?: CompanyResearchData
   ): Promise<HybridAIResponse> {
     try {
