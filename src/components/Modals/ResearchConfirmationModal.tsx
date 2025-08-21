@@ -113,5 +113,3 @@ export default function ResearchConfirmationModal({
     </div>
   );
 }
-
-export default ResearchConfirmationModal
