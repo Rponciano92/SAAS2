@@ -7,6 +7,38 @@ import { CompanyService, StakeholderService } from '@/services/companyService';
 import { CompanyResearchService } from '@/services/companyResearchService';
 import type { Database } from '@/lib/supabase';
 
+// Função para detectar se é empresa grande que merece pesquisa automática
+const detectLargeCompany = (formData: any, companyName: string): boolean => {
+  const name = companyName.toLowerCase();
+  const sector = formData.setor?.toLowerCase() || '';
+  const size = formData.tipoCadastro === 'pj' ? formData.tamanhoEmpresa : formData.tipoAtuacao;
+  const revenue = formData.tipoCadastro === 'pj' ? formData.faturamentoAnual : formData.rendaMensal;
+  
+  // Indicadores de empresa grande
+  const largeIndicators = [
+    'sa', 's.a.', 'ltda', 'corp', 'corporation', 'inc',
+    'banco', 'energia', 'petróleo', 'mineração', 'telecomunicações'
+  ];
+  
+  const hasLargeIndicators = largeIndicators.some(indicator => 
+    name.includes(indicator) || sector.includes(indicator)
+  );
+  
+  const isLargeSize = size && (
+    size.includes('Grande') || 
+    size.includes('Corporação') || 
+    size.includes('1000+')
+  );
+  
+  const isHighRevenue = revenue && (
+    revenue.includes('300 mi') || 
+    revenue.includes('1 bi') || 
+    revenue.includes('Acima')
+  );
+  
+  return hasLargeIndicators || isLargeSize || isHighRevenue;
+};
+
 const necessidadesOptions = [
   { value: 'chat', label: '💬 Chat Inteligente', icon: '💬' },
   { value: 'reunioes', label: '📅 Gestão de Reuniões', icon: '📅' },
