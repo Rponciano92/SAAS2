@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Video, Upload, Plus, Search, Filter, Eye, Download, Clock, Users, FileText, Play, Pause, Square, Mic, MicOff, CheckCircle, AlertTriangle, X, Link } from 'lucide-react';
-import { joinLiveMeeting } from '@/services/firefliesService';
+import { joinLiveMeeting } from '@/services/aetherSaasService';
 import FirefliesHistory from '@/components/Fireflies/FirefliesHistory';
 import MeetingDetailModal from '@/components/Fireflies/MeetingDetailModal';
 import { FirefliesTranscript } from '@/services/firefliesHistoryService';

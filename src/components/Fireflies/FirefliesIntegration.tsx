@@ -9,10 +9,11 @@ import {
   AlertCircle,
   Plus,
   Eye,
-  Download
+  Download,
+  Rocket
 } from 'lucide-react';
 
-export default function FirefliesIntegration() {
+export default function AetherSaasIntegration() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
@@ -20,12 +21,12 @@ export default function FirefliesIntegration() {
       {/* Header */}
       <div className="glass-card-strong p-6">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-gradient-to-br from-[#0A74DA] to-[#003B6D] rounded-xl shadow-lg">
-            <Mic size={24} className="text-white" />
+          <div className="p-3 bg-gradient-to-br from-[#B8860B] to-[#DAA520] rounded-xl shadow-lg">
+            <Rocket size={24} className="text-white" />
           </div>
           <div>
-            <h1 className="page-title">🎙️ Fireflies.ai Dashboard</h1>
-            <p className="text-gray-600">Plataforma completa de reuniões inteligentes com IA</p>
+            <h1 className="page-title">🚀 AetherSaaS Meeting Bot</h1>
+            <p className="text-gray-600">Seu próprio sistema de reuniões inteligentes - Substituto do Fireflies.ai</p>
           </div>
         </div>
       </div>
@@ -254,7 +255,7 @@ export default function FirefliesIntegration() {
             </div>
             
             <button className="glass-button px-6 py-3 text-white rounded-xl font-medium hover:shadow-lg transition-all">
-              📅 Agendar Reunião com Fireflies.ai
+              📅 Agendar Reunião com AetherSaaS
             </button>
           </div>
         )}
@@ -300,17 +301,17 @@ export default function FirefliesIntegration() {
 
       {/* Features Info */}
       <div className="glass-card p-6 border-[#0A74DA]/30 bg-[#0A74DA]/5">
-        <h4 className="font-bold text-[#003B6D] mb-4">💡 Recursos do Fireflies.ai</h4>
+        <h4 className="font-bold text-[#003B6D] mb-4">💡 Recursos do AetherSaaS</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
             <p>• <strong>📊 Visão geral do painel:</strong> Resumos de reuniões anteriores e configurações de transcrição</p>
-            <p>• <strong>✅ Itens de ação automáticos:</strong> Geração automática de tarefas para participantes</p>
+            <p>• <strong>✅ Action items automáticos:</strong> Geração automática de tarefas para participantes</p>
             <p>• <strong>📝 Notas abrangentes:</strong> Timestamps, identificação de palestrantes e filtros inteligentes</p>
           </div>
           <div className="space-y-2">
-            <p>• <strong>🤝 Ferramentas de colaboração:</strong> "Pergunte ao Fred" e criação de soundbites</p>
+            <p>• <strong>🤝 Ferramentas de colaboração:</strong> Chat com IA e criação de highlights</p>
             <p>• <strong>📈 Análise de desempenho:</strong> Insights sobre produtividade das reuniões</p>
-            <p>• <strong>🎙️ Integração completa:</strong> Google Meet, Zoom, Teams e uploads manuais</p>
+            <p>• <strong>🎙️ Sistema proprietário:</strong> Google Meet, Zoom, Teams e uploads manuais</p>
           </div>
         </div>
       </div>
