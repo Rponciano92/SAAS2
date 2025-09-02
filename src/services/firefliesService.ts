@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 // Configuração da API com validação aprimorada
 const FIREFLIES_API_URL = import.meta.env.VITE_FIREFLIES_API_URL || 'https://api.fireflies.ai/graphql';
-const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY || 'aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql';
+const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY;
 
 // Validação da API key
 function validateApiKey(): { isValid: boolean; error?: string } {
@@ -16,19 +16,10 @@ function validateApiKey(): { isValid: boolean; error?: string } {
   
   if (FIREFLIES_API_KEY === 'your_actual_fireflies_api_key_here' || 
       FIREFLIES_API_KEY === 'demo-key' ||
-      FIREFLIES_API_KEY.length < 10) {
+      FIREFLIES_API_KEY.length < 20) {
     return {
       isValid: false,
       error: 'VITE_FIREFLIES_API_KEY é um valor placeholder ou inválido'
-    };
-  }
-  
-  // Verificar formato básico da API key (UUID-like)
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(FIREFLIES_API_KEY)) {
-    return {
-      isValid: false,
-      error: 'VITE_FIREFLIES_API_KEY não tem formato válido (deve ser UUID)'
     };
   }
   
@@ -777,7 +768,7 @@ let firefliesService: FirefliesService | null = null;
 export const getFirefliesService = (): FirefliesService => {
   if (!firefliesService) {
     const firefliesApiUrl = FIREFLIES_API_URL;
-    const apiKey = FIREFLIES_API_KEY || 'demo-key';
+    const apiKey = FIREFLIES_API_KEY;
     const webhookUrl = import.meta.env.VITE_FIREFLIES_WEBHOOK_URL || '';
 
     const validation = validateApiKey();
@@ -786,7 +777,7 @@ export const getFirefliesService = (): FirefliesService => {
       console.warn('📝 Para configurar: https://app.fireflies.ai/integrations/custom/api');
     }
 
-    firefliesService = new FirefliesService({ apiUrl: firefliesApiUrl, apiKey, webhookUrl });
+    firefliesService = new FirefliesService({ apiUrl: firefliesApiUrl, apiKey: apiKey || '', webhookUrl });
   }
   
   return firefliesService;

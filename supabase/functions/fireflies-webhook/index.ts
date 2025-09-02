@@ -80,11 +80,11 @@ async function handleTest() {
     if (!firefliesApiKey) {
       return new Response(JSON.stringify({
         success: false,
-        message: 'FIREFLIES_API_KEY não configurada. Use: aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql',
+        message: 'FIREFLIES_API_KEY não configurada',
         instructions: [
           '1. Vá para o painel do Supabase',
           '2. Settings > Edge Functions',
-          '3. Adicione FIREFLIES_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql',
+          '3. Adicione FIREFLIES_API_KEY=sua_chave_aqui',
           '4. Redeploy a função'
         ]
       }), {
