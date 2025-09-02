@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 // Configuração da API com validação aprimorada
 const FIREFLIES_API_URL = import.meta.env.VITE_FIREFLIES_API_URL || 'https://api.fireflies.ai/graphql';
-const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY;
+const FIREFLIES_API_KEY = import.meta.env.VITE_FIREFLIES_API_KEY || 'aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql';
 
 // Validação da API key
 function validateApiKey(): { isValid: boolean; error?: string } {

@@ -2,7 +2,7 @@
 // Clean implementation focused on real data display
 
 const FIREFLIES_API_URL = 'https://api.fireflies.ai/graphql';
-const FIREFLIES_API_KEY = '0d13a14f-7214-48c3-bc85-cc817145fe12';
+const FIREFLIES_API_KEY = 'aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql';
 
 export interface FirefliesParticipant {
   name: string;
