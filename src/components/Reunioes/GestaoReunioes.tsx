@@ -475,7 +475,7 @@ export default function GestaoReunioes() {
                 ))}
                 
                 <button className="w-full glass-button py-3 text-white rounded-xl font-medium hover:shadow-lg transition-all">
-                  🚀 Processar com Fireflies.ai
+                  🚀 Processar com AetherSaaS
                 </button>
               </div>
             )}
