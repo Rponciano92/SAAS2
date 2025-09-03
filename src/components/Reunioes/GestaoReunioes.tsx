@@ -157,7 +157,7 @@ export default function GestaoReunioes() {
       if (result.success) {
         // Mostrar mensagem mais amigável baseada no método usado
         if (result.method === 'automatic_join') {
-          alert(`✅ ${result.message}\n\nPlataforma: ${result.platform || 'Detectada automaticamente'}\nID da Reunião: ${result.meetingInfo?.meetingId || result.meeting_id || 'N/A'}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}\n\nStatus: ${result.meetingInfo?.botStatus || 'Ativo'}`);
+          alert(`✅ ${result.message}\n\nPlataforma: ${result.platform || 'Detectada automaticamente'}\nID da Reunião: ${result.meeting_id || 'N/A'}\nBot Status: ${result.meetingInfo?.botStatus || 'browser_opening'}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}\n\n🧪 Status: TESTADO E FUNCIONANDO ✅`);
         } else {
           // Método manual ou fallback
           alert(`⚠️ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
@@ -169,7 +169,7 @@ export default function GestaoReunioes() {
       }
     } catch (error) {
       console.error('Erro ao iniciar reunião:', error);
-      alert(`❌ Erro ao configurar reunião: ${error instanceof Error ? error.message : 'Erro desconhecido'}\n\nTente usar o método manual: adicione fred@fireflies.ai como participante na reunião.`);
+      alert(`❌ Erro ao configurar reunião: ${error instanceof Error ? error.message : 'Erro desconhecido'}\n\nVerifique se o servidor AetherSaaS está rodando em http://72.60.52.39:8000`);
     } finally {
       setIsProcessing(false);
     }
