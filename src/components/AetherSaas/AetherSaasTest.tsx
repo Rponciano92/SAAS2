@@ -317,11 +317,11 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
           <div className="bg-white/20 p-4 rounded-lg">
             <h5 className="font-semibold text-[#003B6D] mb-2">2. Endpoints Disponíveis</h5>
             <ul className="space-y-1 text-gray-700">
-              <li>• <code>GET /api/health</code> - Status da API</li>
-              <li>• <code>POST /api/meetings/upload</code> - Upload de áudio</li>
-              <li>• <code>GET /api/meetings</code> - Listar reuniões</li>
-              <li>• <code>POST /api/meetings/join-real</code> - Entrar em reunião ao vivo</li>
-              <li>• <code>GET /api/meetings/search</code> - Buscar reuniões</li>
+              <li>• <code>GET /health</code> - Status da API</li>
+              <li>• <code>POST /meetings/join</code> - Entrar em reunião ao vivo</li>
+              <li>• <code>GET /meetings/active</code> - Reuniões ativas</li>
+              <li>• <code>POST /meetings/join-background</code> - Entrar em background</li>
+              <li>• <code>POST /meetings/{'{meeting_id}'}/stop</code> - Parar reunião</li>
             </ul>
           </div>
           

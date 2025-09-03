@@ -225,11 +225,9 @@ export class AetherSaasService {
         return getManualInstructions();
       }
 
-      const result = await this.makeApiRequest('/api/meetings/join-real', 'POST', {
+      const result = await this.makeApiRequest('/meetings/join', 'POST', {
         meeting_url: meetingLink,
-        title: meetingTitle,
-        language: 'pt-BR',
-        bot_name: 'AetherSaaS MeetingBot'
+        title: meetingTitle
       });
       
       if (result.success) {
@@ -237,21 +235,20 @@ export class AetherSaasService {
         
         return {
           success: true,
-          message: 'AetherSaaS Bot ativado! Navegador será aberto automaticamente.',
+          message: result.message || 'AetherSaaS Bot ativado! Navegador aberto automaticamente.',
           method: 'automatic_join',
           meeting_id: result.meeting_id,
           platform: result.platform || this.detectPlatform(meetingLink),
-          instructions: [
+          instructions: result.instructions || [
             '✅ Navegador aberto automaticamente',
-            '🌐 Plataforma de reunião carregada',
+            `🌐 ${result.platform || this.detectPlatform(meetingLink)} carregado`,
             '👤 Clique em "Participar" para entrar',
-            '🎯 Bot cumpriu sua função!',
-            '📝 A transcrição será processada automaticamente'
+            '🎯 Bot cumpriu sua função!'
           ],
           tips: [
             '💡 O navegador abrirá com configurações otimizadas',
             '💡 Funciona com Google Meet, Zoom, Teams e Webex',
-            '💡 A gravação é automática após entrar',
+            '💡 Sistema testado e aprovado ✅',
             '💡 Este é nosso sistema proprietário'
           ],
           meetingInfo: {
@@ -259,7 +256,8 @@ export class AetherSaasService {
             title: meetingTitle,
             platform: result.platform || this.detectPlatform(meetingLink),
             timestamp: new Date().toISOString(),
-            botStatus: 'browser_opened'
+            botStatus: 'browser_opened',
+            meetingId: result.meeting_id
           }
         };
       } else {
@@ -291,6 +289,38 @@ export class AetherSaasService {
     }
   }
 
+  async getActiveMeetings(): Promise<any> {
+    try {
+      const result = await this.makeApiRequest('/meetings/active');
+      return result;
+    } catch (error) {
+      logDebugInfo('Get Active Meetings Error', error);
+      throw error;
+    }
+  }
+
+  async stopMeeting(meetingId: string): Promise<any> {
+    try {
+      const result = await this.makeApiRequest(`/meetings/${meetingId}/stop`, 'POST');
+      return result;
+    } catch (error) {
+      logDebugInfo('Stop Meeting Error', error);
+      throw error;
+    }
+  }
+
+  async joinMeetingBackground(meetingLink: string, meetingTitle: string): Promise<any> {
+    try {
+      const result = await this.makeApiRequest('/meetings/join-background', 'POST', {
+        meeting_url: meetingLink,
+        title: meetingTitle
+      });
+      return result;
+    } catch (error) {
+      logDebugInfo('Join Meeting Background Error', error);
+      throw error;
+    }
+  }
   private detectPlatform(meetingUrl: string): string {
     const url = meetingUrl.toLowerCase();
     
@@ -320,13 +350,17 @@ export class AetherSaasService {
         };
       }
       
-      const result = await this.makeApiRequest('/api/health');
+      const result = await this.makeApiRequest('/health');
       
       logDebugInfo('Connection Test Success', result);
       
       return {
         success: true,
-        message: 'Conexão com AetherSaaS funcionando!',
+        message: result.message || 'Conexão com AetherSaaS funcionando!',
+        status: result.status,
+        version: result.version,
+        botType: result.bot_type,
+        tested: result.tested,
         data: result
       };
     } catch (error) {
