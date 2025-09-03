@@ -225,8 +225,8 @@ export class AetherSaasService {
         return getManualInstructions();
       }
 
-      const result = await this.makeApiRequest('/api/meetings/join', 'POST', {
-        meetingUrl: meetingLink,
+      const result = await this.makeApiRequest('/api/meetings/join-real', 'POST', {
+        meeting_url: meetingLink,
         title: meetingTitle,
         language: 'pt-BR'
       });

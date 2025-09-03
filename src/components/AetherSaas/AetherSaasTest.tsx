@@ -170,7 +170,7 @@ export default function AetherSaasTest() {
           </div>
         </div>
       </div>
-
+            <li>• <code>POST /api/meetings/join-real</code> - Entrar em reunião ao vivo</li>
       {/* Test Controls */}
       <div className="glass-card p-6">
         <h3 className="section-title mb-6">🔧 Controles de Teste</h3>
