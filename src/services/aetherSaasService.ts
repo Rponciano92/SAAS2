@@ -9,7 +9,7 @@ class AetherSaaSBotService {
   private apiUrl: string;
   private activeMeetings: Map<string, any>;
 
-  constructor(apiUrl: string = 'http://72.60.52.39:8000') {
+  constructor(apiUrl: string = AETHERSAAS_API_URL) {
     this.apiUrl = apiUrl;
     this.activeMeetings = new Map();
   }
@@ -141,7 +141,9 @@ class AetherSaaSBotService {
   }
 }
 
-const AETHERSAAS_API_URL = import.meta.env.VITE_AETHERSAAS_API_URL || 'http://72.60.52.39:8000';
+const AETHERSAAS_API_URL = import.meta.env.DEV 
+  ? '/api/aethersaas' 
+  : (import.meta.env.VITE_AETHERSAAS_API_URL || 'http://72.60.52.39:8000');
 const AETHERSAAS_API_KEY = import.meta.env.VITE_AETHERSAAS_API_KEY;
 
 // Validação da API key
