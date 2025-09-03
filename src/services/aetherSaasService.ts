@@ -28,25 +28,24 @@ class AetherSaaSBotService {
       const payload = {
         meeting_url: meetingUrl,
         title: options.title || 'Reunião AetherSaaS',
-        bot_type: options.botType || 'simple', // simple ou selenium
+        bot_type: options.botType || 'simple',
         auto_record: options.autoRecord !== false,
         auto_transcribe: options.autoTranscribe !== false
       };
 
       console.log('🤖 Ativando bot AetherSaaS:', payload);
 
-      // Detectar endpoint baseado no tipo
-      let endpoint = '/meetings/join';
+      // Usar endpoint correto que está funcionando
+      let endpoint = '/meetings/join-real-simple';
       
       if (payload.bot_type === 'selenium') {
-        endpoint = '/meetings/join-selenium';
+        endpoint = '/meetings/join-real-selenium';
       }
 
       const response = await fetch(`${this.apiUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${options.apiKey || ''}`
         },
         body: JSON.stringify(payload)
       });
@@ -133,7 +132,7 @@ class AetherSaaSBotService {
    */
   async checkHealth() {
     try {
-      const response = await fetch(`${this.apiUrl}/api/health`);
+      const response = await fetch(`${this.apiUrl}/health`);
       return response.ok;
     } catch {
       return false;
@@ -461,7 +460,7 @@ export class AetherSaasService {
 
   async joinMeetingSelenium(meetingLink: string, meetingTitle: string, headless: boolean = false): Promise<any> {
     try {
-      const result = await this.makeApiRequest('/meetings/join-selenium', 'POST', {
+      const result = await this.makeApiRequest('/meetings/join-real-selenium', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
         bot_type: "selenium",
@@ -478,7 +477,7 @@ export class AetherSaasService {
 
   async joinMeetingSimple(meetingLink: string, meetingTitle: string): Promise<any> {
     try {
-      const result = await this.makeApiRequest('/meetings/join', 'POST', {
+      const result = await this.makeApiRequest('/meetings/join-real-simple', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
         bot_type: "simple",
