@@ -759,7 +759,7 @@ export default function GestaoReunioes() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-[#003B6D]">Adicionar à reunião ao vivo</h3>
-                🤖 AetherSaaS Bot - Entrar ao Vivo
+              <button
                 onClick={() => setShowLiveMeetingModal(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
