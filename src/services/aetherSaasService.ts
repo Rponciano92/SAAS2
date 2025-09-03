@@ -266,6 +266,7 @@ export class AetherSaasService {
               : '👤 Clique em "Participar" para entrar',
             '🎙️ Gravação e transcrição automáticas',
             '📝 Resumo executivo será gerado pela IA'
+          ],
           tips: [
             '💡 O navegador abrirá com configurações otimizadas',
             '💡 Funciona com Google Meet, Zoom, Teams e Webex',
@@ -273,13 +274,14 @@ export class AetherSaasService {
             '💡 Este é nosso sistema proprietário'
           ],
           meetingInfo: {
-            result.bot_type === 'selenium_advanced' 
-              ? '💡 Bot avançado com automação completa via Selenium'
-              : '💡 Bot simples e confiável - sempre funciona',
-            '💡 Funciona com Google Meet, Zoom, Teams e Webex',
-            '💡 Sistema TESTADO E FUNCIONANDO ✅',
-            '💡 Este é nosso sistema proprietário AetherSaaS'
-            botStatus: 'browser_opening',
+            info: [
+              result.bot_type === 'selenium_advanced' 
+                ? '💡 Bot avançado com automação completa via Selenium'
+                : '💡 Bot simples e confiável - sempre funciona',
+              '💡 Funciona com Google Meet, Zoom, Teams e Webex',
+              '💡 Sistema TESTADO E FUNCIONANDO ✅',
+              '💡 Este é nosso sistema proprietário AetherSaaS'
+            ],
             botStatus: result.bot_type === 'selenium_advanced' ? 'auto_joining_selenium' : 'browser_opening',
             botType: result.bot_type || 'simple_reliable'
           }
@@ -292,8 +294,7 @@ export class AetherSaasService {
           message: `Problema com a API (${result.error}). Use o método manual:`,
           method: 'manual_fallback',
           instructions: getManualInstructions().instructions,
-          apiError: result.error,
-        message: 'Sistema AetherSaaS funcionando!',
+          apiError: result.error
         };
       }
       
@@ -385,6 +386,7 @@ export class AetherSaasService {
       throw error;
     }
   }
+
   private detectPlatform(meetingUrl: string): string {
     const url = meetingUrl.toLowerCase();
     
@@ -446,7 +448,6 @@ export class AetherSaasService {
       
       return {
         success: false,
-        message: 'Erro no teste AetherSaaS',
         message: 'Falha na conexão com AetherSaaS',
         fallback: 'Verifique se o servidor está online'
       };
