@@ -319,7 +319,7 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
             <ul className="space-y-1 text-gray-700">
               <li>• <code>GET /health</code> - Status da API</li>
               <li>• <code>POST /meetings/join</code> - Entrar em reunião ao vivo</li>
-              <li>• <code>POST /meetings/join-advanced</code> - Entrar com Selenium (avançado)</li>
+              <li>• <code>POST /meetings/join-selenium</code> - Entrar com Selenium (automação completa)</li>
               <li>• <code>GET /meetings/active</code> - Reuniões ativas</li>
               <li>• <code>POST /meetings/join-background</code> - Entrar em background</li>
               <li>• <code>POST /meetings/{'{meeting_id}'}/stop</code> - Parar reunião</li>
@@ -339,10 +339,10 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
           <div className="bg-white/20 p-4 rounded-lg">
             <h5 className="font-semibold text-[#003B6D] mb-2">4. Status do Bot</h5>
             <p className="text-gray-700">
-              Bot Simples: <code>simple_reliable</code> - Sistema testado e aprovado ✅
+              Bot Simples: <code>simple</code> - Abre navegador, sempre funciona ✅
             </p>
             <p className="text-gray-700">
-              Bot Avançado: <code>selenium_advanced</code> - Automação completa com Selenium
+              Bot Selenium: <code>selenium</code> - Automação completa: desliga câmera/mic, insere nome, clica participar
             </p>
             <p className="text-gray-700">
               Versão da API: <code>2.0.0</code> - FastAPI com CORS configurado
@@ -353,10 +353,10 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
             <h5 className="font-semibold text-[#003B6D] mb-2">5. Recursos Avançados</h5>
             <ul className="space-y-1 text-gray-700 text-sm">
               <li>• <strong>Bot Simples:</strong> Abre navegador para entrada manual</li>
-              <li>• <strong>Bot Avançado:</strong> Entrada 100% automática com Selenium</li>
-              <li>• <strong>Google Meet:</strong> Automação completa (desliga câmera/mic, insere nome, clica participar)</li>
+              <li>• <strong>Bot Selenium:</strong> Entrada 100% automática com Selenium</li>
+              <li>• <strong>Google Meet:</strong> Desliga câmera/mic, insere nome, clica participar automaticamente</li>
               <li>• <strong>Outras Plataformas:</strong> Abre e aguarda entrada manual</li>
-              <li>• <strong>Cleanup:</strong> Limpeza automática de recursos</li>
+              <li>• <strong>Cleanup:</strong> Limpeza automática de Chrome e recursos Selenium</li>
             </ul>
           </div>
         </div>

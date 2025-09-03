@@ -225,13 +225,14 @@ export class AetherSaasService {
         return getManualInstructions();
       }
 
-      // Tentar primeiro o bot avançado (Selenium)
-      let result = await this.makeApiRequest('/meetings/join-advanced', 'POST', {
+      // Tentar primeiro o bot Selenium avançado
+      let result = await this.makeApiRequest('/meetings/join-selenium', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
-        bot_name: "AetherSaaS Advanced Bot",
-        headless: false,
-        auto_join: true
+        bot_type: "selenium",
+        auto_record: true,
+        auto_transcribe: true,
+        headless: false
       });
       
       // Se bot avançado falhar, usar bot simples como fallback
@@ -240,7 +241,9 @@ export class AetherSaasService {
         result = await this.makeApiRequest('/meetings/join', 'POST', {
           meeting_url: meetingLink,
           title: meetingTitle,
-          bot_name: "AetherSaaS Simple Bot"
+          bot_type: "simple",
+          auto_record: true,
+          auto_transcribe: true
         });
       }
       
@@ -249,19 +252,19 @@ export class AetherSaasService {
         
         return {
           success: true,
-          message: result.message || `✅ ${result.bot_type === 'selenium_advanced' ? 'Bot avançado' : 'Bot simples'} ativado para ${result.platform || this.detectPlatform(meetingLink)}!`,
+          message: result.message || `✅ ${result.bot_type === 'selenium' ? 'Bot Selenium avançado' : 'Bot simples'} ativado para ${result.platform || this.detectPlatform(meetingLink)}!`,
           method: 'automatic_join',
           meeting_id: result.meeting_id,
           platform: result.platform || this.detectPlatform(meetingLink),
           bot_type: result.bot_type || 'simple_reliable',
           instructions: result.instructions || [
-            result.bot_type === 'selenium_advanced' 
-              ? '🤖 Bot avançado entrando automaticamente na reunião'
+            result.bot_type === 'selenium' 
+              ? '🤖 Bot Selenium entrando automaticamente na reunião'
               : '✅ Navegador será aberto automaticamente',
-            result.bot_type === 'selenium_advanced'
-              ? '⚡ Entrada totalmente automatizada com Selenium'
+            result.bot_type === 'selenium'
+              ? '⚡ Automação completa: desliga câmera/mic, insere nome, clica participar'
               : `🌐 ${result.platform || this.detectPlatform(meetingLink)} carregado`,
-            result.bot_type === 'selenium_advanced'
+            result.bot_type === 'selenium'
               ? '🎯 Bot já está participando da reunião!'
               : '👤 Clique em "Participar" para entrar',
             '🎙️ Gravação e transcrição automáticas',
@@ -275,14 +278,14 @@ export class AetherSaasService {
           ],
           meetingInfo: {
             info: [
-              result.bot_type === 'selenium_advanced' 
-                ? '💡 Bot avançado com automação completa via Selenium'
+              result.bot_type === 'selenium' 
+                ? '💡 Bot Selenium com automação completa: desliga câmera/mic, insere nome, clica participar'
                 : '💡 Bot simples e confiável - sempre funciona',
               '💡 Funciona com Google Meet, Zoom, Teams e Webex',
               '💡 Sistema TESTADO E FUNCIONANDO ✅',
               '💡 Este é nosso sistema proprietário AetherSaaS'
             ],
-            botStatus: result.bot_type === 'selenium_advanced' ? 'auto_joining_selenium' : 'browser_opening',
+            botStatus: result.bot_type === 'selenium' ? 'selenium_auto_joining' : 'browser_opening',
             botType: result.bot_type || 'simple_reliable'
           }
         };
@@ -314,23 +317,38 @@ export class AetherSaasService {
     }
   }
 
-  async joinMeetingAdvanced(meetingLink: string, meetingTitle: string, headless: boolean = false): Promise<any> {
+  async joinMeetingSelenium(meetingLink: string, meetingTitle: string, headless: boolean = false): Promise<any> {
     try {
-      const result = await this.makeApiRequest('/meetings/join-advanced', 'POST', {
+      const result = await this.makeApiRequest('/meetings/join-selenium', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
-        bot_name: "AetherSaaS Advanced Bot",
+        bot_type: "selenium",
         headless: headless,
-        auto_join: true,
-        selenium_enabled: true
+        auto_record: true,
+        auto_transcribe: true
       });
       return result;
     } catch (error) {
-      logDebugInfo('Advanced Join Error', error);
+      logDebugInfo('Selenium Join Error', error);
       throw error;
     }
   }
 
+  async joinMeetingSimple(meetingLink: string, meetingTitle: string): Promise<any> {
+    try {
+      const result = await this.makeApiRequest('/meetings/join', 'POST', {
+        meeting_url: meetingLink,
+        title: meetingTitle,
+        bot_type: "simple",
+        auto_record: true,
+        auto_transcribe: true
+      });
+      return result;
+    } catch (error) {
+      logDebugInfo('Simple Join Error', error);
+      throw error;
+    }
+  }
   async getActiveMeetings(): Promise<any> {
     try {
       const result = await this.makeApiRequest('/meetings/active');
@@ -344,7 +362,8 @@ export class AetherSaasService {
   async stopMeeting(meetingId: string): Promise<any> {
     try {
       const result = await this.makeApiRequest(`/meetings/${meetingId}/stop`, 'POST', {
-        cleanup_selenium: true
+        cleanup: true,
+        force_stop: true
       });
       return result;
     } catch (error) {
@@ -365,7 +384,10 @@ export class AetherSaasService {
 
   async cleanupBot(): Promise<any> {
     try {
-      const result = await this.makeApiRequest('/bot/cleanup', 'POST');
+      const result = await this.makeApiRequest('/bot/cleanup', 'POST', {
+        cleanup_selenium: true,
+        cleanup_chrome: true
+      });
       return result;
     } catch (error) {
       logDebugInfo('Cleanup Bot Error', error);
@@ -378,7 +400,9 @@ export class AetherSaasService {
       const result = await this.makeApiRequest('/meetings/join-background', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
-        bot_name: "AetherSaaS Background Bot"
+        bot_type: "simple",
+        background: true,
+        auto_record: true
       });
       return result;
     } catch (error) {
@@ -425,7 +449,8 @@ export class AetherSaasService {
         message: result.message || 'AetherSaaS Meeting Bot API',
         status: result.status,
         version: result.version,
-        botType: result.bot_type || 'simple_reliable',
+        botTypes: ['simple', 'selenium'],
+        defaultBot: 'simple',
         tested: result.tested || true,
         botReady: result.bot_ready,
         lastTest: result.last_test,
@@ -449,7 +474,7 @@ export class AetherSaasService {
       return {
         success: false,
         message: 'Falha na conexão com AetherSaaS',
-        fallback: 'Verifique se o servidor está online'
+        fallback: 'Verifique se o servidor está online em http://72.60.52.39:8000'
       };
     }
   }
