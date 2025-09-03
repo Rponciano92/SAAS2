@@ -26,7 +26,7 @@ export default function AetherSaasIntegration() {
           </div>
           <div>
             <h1 className="page-title">🚀 AetherSaaS Meeting Bot</h1>
-            <p className="text-gray-600">Seu próprio sistema de reuniões inteligentes - Substituto do Fireflies.ai</p>
+            <p className="text-gray-600">Sistema próprio com bot simples + bot avançado Selenium</p>
           </div>
         </div>
       </div>
@@ -304,14 +304,14 @@ export default function AetherSaasIntegration() {
         <h4 className="font-bold text-[#003B6D] mb-4">💡 Recursos do AetherSaaS</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
-            <p>• <strong>📊 Visão geral do painel:</strong> Resumos de reuniões anteriores e configurações de transcrição</p>
-            <p>• <strong>✅ Action items automáticos:</strong> Geração automática de tarefas para participantes</p>
-            <p>• <strong>📝 Notas abrangentes:</strong> Timestamps, identificação de palestrantes e filtros inteligentes</p>
+            <p>• <strong>🤖 Bot Simples:</strong> Abre navegador, sempre funciona, entrada manual</p>
+            <p>• <strong>⚡ Bot Avançado:</strong> Selenium com automação completa para Google Meet</p>
+            <p>• <strong>📝 Transcrição IA:</strong> Processamento de áudio com identificação de falantes</p>
           </div>
           <div className="space-y-2">
-            <p>• <strong>🤝 Ferramentas de colaboração:</strong> Chat com IA e criação de highlights</p>
-            <p>• <strong>📈 Análise de desempenho:</strong> Insights sobre produtividade das reuniões</p>
-            <p>• <strong>🎙️ Sistema proprietário:</strong> Google Meet, Zoom, Teams e uploads manuais</p>
+            <p>• <strong>✅ Action Items:</strong> Identificação automática de tarefas</p>
+            <p>• <strong>📊 Resumo Executivo:</strong> Síntese inteligente dos pontos principais</p>
+            <p>• <strong>🔒 Sistema Próprio:</strong> Seus dados, seu servidor, sua privacidade</p>
           </div>
         </div>
       </div>

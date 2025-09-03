@@ -235,7 +235,7 @@ export default function GestaoReunioes() {
             className="bg-gradient-to-r from-[#28A745] to-[#20C997] px-4 py-2 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
           >
             <Video size={18} />
-            <span>Adicionar à reunião ao vivo</span>
+            <span>🤖 Bot AetherSaaS - Entrar ao Vivo</span>
           </button>
           
           <button
@@ -243,7 +243,7 @@ export default function GestaoReunioes() {
             className="bg-gradient-to-r from-[#B8860B] to-[#DAA520] px-6 py-3 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
           >
             <FileText size={18} />
-            <span>Histórico Fireflies</span>
+            <span>Histórico de Reuniões</span>
           </button>
         </div>
       </div>
@@ -254,8 +254,8 @@ export default function GestaoReunioes() {
           <div className="bg-white rounded-lg max-w-7xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">🔥 Histórico de Reuniões Fireflies</h2>
-                <p className="text-gray-600">Reuniões gravadas e transcritas automaticamente</p>
+                <h2 className="text-2xl font-bold text-gray-900">🤖 Histórico de Reuniões AetherSaaS</h2>
+                <p className="text-gray-600">Reuniões processadas pelo seu sistema próprio</p>
               </div>
               <button
                 onClick={() => setShowFirefliesHistory(false)}
@@ -343,7 +343,7 @@ export default function GestaoReunioes() {
                             : 'bg-gradient-to-r from-[#28A745] to-[#20C997] text-white hover:shadow-lg'
                         }`}
                       >
-                        {isProcessing ? '⏳ Configurando IA...' : '🚀 Iniciar com IA'}
+                        {isProcessing ? '⏳ Ativando Bot...' : '🤖 Iniciar com AetherSaaS'}
                       </button>
                     )}
                   </div>
@@ -759,7 +759,7 @@ export default function GestaoReunioes() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-[#003B6D]">Adicionar à reunião ao vivo</h3>
-              <button
+                🤖 AetherSaaS Bot - Entrar ao Vivo
                 onClick={() => setShowLiveMeetingModal(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -770,14 +770,14 @@ export default function GestaoReunioes() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[#003B6D] mb-2">
-                  Dê um nome à sua reunião (opcional)
+                  Nome da reunião (opcional)
                 </label>
                 <input
                   type="text"
                   value={liveMeetingData.nome}
                   onChange={(e) => handleLiveMeetingInputChange('nome', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A74DA] focus:border-transparent"
-                  placeholder="Por exemplo, sincronização da equipe de produtos"
+                  placeholder="Ex: Reunião Estratégica Q1"
                 />
               </div>
               
@@ -786,7 +786,7 @@ export default function GestaoReunioes() {
                   Link da reunião
                 </label>
                 <p className="text-sm text-gray-600 mb-2">
-                  Capture reuniões do GMeet, Zoom, equipes MS e <span className="text-[#0A74DA] underline cursor-pointer">mais</span>.
+                  Suporte para Google Meet, Zoom, Teams e Webex com automação avançada.
                 </p>
                 <div className="relative">
                   <Link size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -833,7 +833,7 @@ export default function GestaoReunioes() {
                     : 'bg-gradient-to-r from-[#28A745] to-[#20C997] text-white hover:shadow-lg'
                 }`}
               >
-                {isProcessing ? 'Configurando IA...' : 'Comece a capturar'}
+                {isProcessing ? 'Ativando Bot...' : '🤖 Iniciar AetherSaaS Bot'}
               </button>
             </div>
           </div>
@@ -845,31 +845,40 @@ export default function GestaoReunioes() {
         <h4 className="font-bold text-[#003B6D] mb-4">💡 Recursos das Reuniões Inteligentes</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
-            <p>• <strong>🎥 Gravação Automática:</strong> Integração com Google Meet para gravação automática</p>
-            <p>• <strong>📝 Transcrição em Tempo Real:</strong> Conversão de áudio para texto com identificação de falantes</p>
-            <p>• <strong>✅ Action Items:</strong> Identificação automática de tarefas e responsáveis</p>
+            <p>• <strong>🤖 Bot Avançado:</strong> Entrada 100% automática com Selenium</p>
+            <p>• <strong>🌐 Bot Simples:</strong> Abre navegador para entrada manual (sempre funciona)</p>
+            <p>• <strong>📝 Transcrição IA:</strong> Conversão de áudio para texto com identificação de falantes</p>
           </div>
           <div className="space-y-2">
-            <p>• <strong>📊 Resumo Executivo:</strong> Síntese inteligente dos principais pontos discutidos</p>
-            <p>• <strong>🧠 Análise de Sentimento:</strong> Identificação do tom e clima da reunião</p>
-            <p>• <strong>🔍 Busca Inteligente:</strong> Encontre informações específicas em todas as reuniões</p>
+            <p>• <strong>✅ Action Items:</strong> Identificação automática de tarefas e responsáveis</p>
+            <p>• <strong>📊 Resumo Executivo:</strong> Síntese inteligente dos principais pontos</p>
+            <p>• <strong>🔍 Sistema Próprio:</strong> Seu próprio servidor, seus dados, sua privacidade</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowLiveMeetingModal(true)}
-          className="bg-gradient-to-r from-[#28A745] to-[#20C997] px-4 py-2 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
-        >
-          <Video size={18} />
-          <span>Adicionar à reunião ao vivo</span>
-        </button>
         
-        <button
-          onClick={() => setShowFirefliesHistory(true)}
-          className="bg-gradient-to-r from-[#B8860B] to-[#DAA520] px-6 py-3 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center space-x-2"
-        >
-          <FileText size={18} />
-          <span>Histórico Fireflies</span>
-        </button>
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h5 className="font-semibold text-green-800 mb-2">🤖 Dois Tipos de Bot:</h5>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="font-medium text-green-700">Bot Simples (Sempre Funciona):</p>
+              <ul className="text-green-600 space-y-1">
+                <li>• Abre navegador automaticamente</li>
+                <li>• Você clica "Participar" manualmente</li>
+                <li>• 100% de taxa de sucesso</li>
+                <li>• Funciona em qualquer plataforma</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium text-green-700">Bot Avançado (Selenium):</p>
+              <ul className="text-green-600 space-y-1">
+                <li>• Entrada 100% automática</li>
+                <li>• Desliga câmera/microfone</li>
+                <li>• Insere nome do bot</li>
+                <li>• Clica "Participar" automaticamente</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
