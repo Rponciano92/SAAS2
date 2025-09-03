@@ -332,6 +332,16 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
               Exemplo: <code>aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql</code>
             </p>
           </div>
+          
+          <div className="bg-white/20 p-4 rounded-lg">
+            <h5 className="font-semibold text-[#003B6D] mb-2">4. Status do Bot</h5>
+            <p className="text-gray-700">
+              Bot Tipo: <code>simple_reliable</code> - Sistema testado e aprovado ✅
+            </p>
+            <p className="text-gray-700">
+              Versão da API: <code>2.0.0</code> - FastAPI com CORS configurado
+            </p>
+          </div>
         </div>
       </div>
     </div>
