@@ -157,7 +157,7 @@ export default function GestaoReunioes() {
       if (result.success) {
         // Mostrar mensagem mais amigável baseada no método usado
         if (result.method === 'automatic_join') {
-          alert(`✅ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
+          alert(`✅ ${result.message}\n\nPlataforma: ${result.platform || 'Detectada automaticamente'}\nID da Reunião: ${result.meeting_id || 'N/A'}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
         } else {
           // Método manual ou fallback
           alert(`⚠️ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);

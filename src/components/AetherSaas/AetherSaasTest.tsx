@@ -320,7 +320,7 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
               <li>• <code>GET /api/health</code> - Status da API</li>
               <li>• <code>POST /api/meetings/upload</code> - Upload de áudio</li>
               <li>• <code>GET /api/meetings</code> - Listar reuniões</li>
-              <li>• <code>POST /api/meetings/join</code> - Entrar em reunião ao vivo</li>
+              <li>• <code>POST /api/meetings/join-real</code> - Entrar em reunião ao vivo</li>
               <li>• <code>GET /api/meetings/search</code> - Buscar reuniões</li>
             </ul>
           </div>

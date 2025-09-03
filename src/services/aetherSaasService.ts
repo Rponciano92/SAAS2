@@ -228,7 +228,8 @@ export class AetherSaasService {
       const result = await this.makeApiRequest('/api/meetings/join-real', 'POST', {
         meeting_url: meetingLink,
         title: meetingTitle,
-        language: 'pt-BR'
+        language: 'pt-BR',
+        bot_name: 'AetherSaaS MeetingBot'
       });
       
       if (result.success) {
@@ -236,26 +237,29 @@ export class AetherSaasService {
         
         return {
           success: true,
-          message: 'AetherSaaS Bot entrou automaticamente na reunião! Aguarde alguns segundos.',
+          message: 'AetherSaaS Bot ativado! Navegador será aberto automaticamente.',
           method: 'automatic_join',
+          meeting_id: result.meeting_id,
+          platform: result.platform || this.detectPlatform(meetingLink),
           instructions: [
-            '✅ O bot AetherSaaS está entrando na reunião automaticamente',
-            '⏱️ Aguarde 30-60 segundos para o bot aparecer',
-            '👋 Aceite quando "AetherSaaS Bot" pedir para entrar',
-            '🎙️ A gravação iniciará automaticamente',
-            '📝 A transcrição ficará disponível em alguns minutos'
+            '✅ Navegador aberto automaticamente',
+            '🌐 Plataforma de reunião carregada',
+            '👤 Clique em "Participar" para entrar',
+            '🎯 Bot cumpriu sua função!',
+            '📝 A transcrição será processada automaticamente'
           ],
           tips: [
-            '💡 O bot aparecerá como "AetherSaaS Meeting Bot"',
-            '💡 Não precisa convidar manualmente - ele entra sozinho!',
-            '💡 A gravação é automática após aceitar',
+            '💡 O navegador abrirá com configurações otimizadas',
+            '💡 Funciona com Google Meet, Zoom, Teams e Webex',
+            '💡 A gravação é automática após entrar',
             '💡 Este é nosso sistema proprietário'
           ],
           meetingInfo: {
             url: meetingLink,
             title: meetingTitle,
+            platform: result.platform || this.detectPlatform(meetingLink),
             timestamp: new Date().toISOString(),
-            botStatus: 'joining_automatically'
+            botStatus: 'browser_opened'
           }
         };
       } else {
@@ -284,6 +288,22 @@ export class AetherSaasService {
         instructions: getManualInstructions().instructions,
         error: error.message
       };
+    }
+  }
+
+  private detectPlatform(meetingUrl: string): string {
+    const url = meetingUrl.toLowerCase();
+    
+    if (url.includes('meet.google.com')) {
+      return 'Google Meet';
+    } else if (url.includes('zoom.us')) {
+      return 'Zoom';
+    } else if (url.includes('teams.microsoft.com') || url.includes('teams.live.com')) {
+      return 'Microsoft Teams';
+    } else if (url.includes('webex.com')) {
+      return 'Cisco Webex';
+    } else {
+      return 'Plataforma Desconhecida';
     }
   }
 
