@@ -88,7 +88,7 @@ class AetherSaaSBotService {
    */
   async getActiveMeetings() {
     try {
-      const response = await fetch(`${this.apiUrl}/api/meetings/active`);
+      const response = await fetch(`${this.apiUrl}/meetings/active`);
       const result = await response.json();
       
       if (result.success) {
@@ -133,7 +133,7 @@ class AetherSaaSBotService {
    */
   async checkHealth() {
     try {
-      const response = await fetch(`${this.apiUrl}/health`);
+      const response = await fetch(`${this.apiUrl}/api/health`);
       return response.ok;
     } catch {
       return false;
