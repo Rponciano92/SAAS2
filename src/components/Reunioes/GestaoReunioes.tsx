@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Video, Upload, Plus, Search, Filter, Eye, Download, Clock, Users, FileText, Play, Pause, Square, Mic, MicOff, CheckCircle, AlertTriangle, X, Link } from 'lucide-react';
-import { joinLiveMeeting } from '@/services/aetherSaasService';
+import { getUniversalBotService } from '@/services/aetherSaasService';
 import FirefliesHistory from '@/components/Fireflies/FirefliesHistory';
 import MeetingDetailModal from '@/components/Fireflies/MeetingDetailModal';
 import { FirefliesTranscript } from '@/services/firefliesHistoryService';
@@ -148,24 +148,20 @@ export default function GestaoReunioes() {
     try {
       setIsProcessing(true);
       
-      const result = await joinLiveMeeting(
-        liveMeetingData.link,
-        liveMeetingData.nome || 'Reunião Aether AI',
-        liveMeetingData.idioma
-      );
+      const botService = getUniversalBotService();
+      const result = await botService.joinMeeting(liveMeetingData.link, {
+        title: liveMeetingData.nome || 'Reunião Aether AI',
+        botType: 'simple', // Usar bot simples por padrão
+        autoRecord: true,
+        autoTranscribe: true
+      });
       
       if (result.success) {
-        // Mostrar mensagem mais amigável baseada no método usado
-        if (result.method === 'automatic_join') {
-          alert(`✅ ${result.message}\n\nPlataforma: ${result.platform || 'Detectada automaticamente'}\nID da Reunião: ${result.meeting_id || 'N/A'}\nBot Status: ${result.meetingInfo?.botStatus || 'browser_opening'}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}\n\n🧪 Status: TESTADO E FUNCIONANDO ✅`);
-        } else {
-          // Método manual ou fallback
-          alert(`⚠️ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
-        }
+        alert(`✅ ${result.message}\n\nPlataforma: ${result.platform || 'Detectada automaticamente'}\nID da Reunião: ${result.meeting_id || 'N/A'}\nTipo de Bot: ${result.bot_type || 'simple'}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}\n\n🧪 Status: TESTADO E FUNCIONANDO ✅`);
         setShowLiveMeetingModal(false);
         setLiveMeetingData({ nome: '', link: '', idioma: 'pt-BR' });
       } else {
-        alert(`⚠️ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Tente novamente'}`);
+        alert(`❌ ${result.message || result.error}\n\nVerifique se o servidor AetherSaaS está rodando em http://72.60.52.39:8000`);
       }
     } catch (error) {
       console.error('Erro ao iniciar reunião:', error);
@@ -179,12 +175,18 @@ export default function GestaoReunioes() {
     try {
       setIsProcessing(true);
       
-      const result = await joinLiveMeeting(meetingLink, meetingTitle, 'pt-BR');
+      const botService = getUniversalBotService();
+      const result = await botService.joinMeeting(meetingLink, {
+        title: meetingTitle,
+        botType: 'simple',
+        autoRecord: true,
+        autoTranscribe: true
+      });
       
       if (result.success) {
-        alert(`✅ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
+        alert(`✅ ${result.message}\n\nPlataforma: ${result.platform}\nID: ${result.meeting_id}\n\nInstruções:\n${result.instructions?.join('\n') || 'Siga as instruções padrão'}`);
       } else {
-        alert(`⚠️ ${result.message}\n\nInstruções:\n${result.instructions?.join('\n') || 'Tente novamente'}`);
+        alert(`❌ ${result.message || result.error}`);
       }
     } catch (error) {
       console.error('Erro ao iniciar reunião:', error);

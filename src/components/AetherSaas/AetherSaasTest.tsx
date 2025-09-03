@@ -356,7 +356,8 @@ VITE_AETHERSAAS_API_KEY=aethersaas_IrJGOg7VCrE0CBfIIsF2dBwTWzA1khxBDNMW47Ql`}
               <li>• <strong>Bot Selenium:</strong> Entrada 100% automática com Selenium</li>
               <li>• <strong>Google Meet:</strong> Desliga câmera/mic, insere nome, clica participar automaticamente</li>
               <li>• <strong>Outras Plataformas:</strong> Abre e aguarda entrada manual</li>
-              <li>• <strong>Cleanup:</strong> Limpeza automática de Chrome e recursos Selenium</li>
+              <li>• <strong>Background:</strong> Execução em background com FastAPI</li>
+              <li>• <strong>CORS:</strong> Configurado para aceitar requisições do frontend</li>
             </ul>
           </div>
         </div>

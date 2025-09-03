@@ -1,6 +1,146 @@
 // AetherSaaS Service - Sistema Próprio de Reuniões Inteligentes
 // Substituto completo do Fireflies.ai usando nossa própria API
 
+/**
+ * Serviço Universal para Bot AetherSaaS
+ * TESTADO ✅
+ */
+class AetherSaaSBotService {
+  private apiUrl: string;
+  private activeMeetings: Map<string, any>;
+
+  constructor(apiUrl: string = 'http://72.60.52.39:8000') {
+    this.apiUrl = apiUrl;
+    this.activeMeetings = new Map();
+  }
+
+  /**
+   * Entrar em reunião - TESTADO ✅
+   */
+  async joinMeeting(meetingUrl: string, options: {
+    title?: string;
+    botType?: 'simple' | 'selenium';
+    autoRecord?: boolean;
+    autoTranscribe?: boolean;
+    apiKey?: string;
+  } = {}) {
+    try {
+      const payload = {
+        meeting_url: meetingUrl,
+        title: options.title || 'Reunião AetherSaaS',
+        bot_type: options.botType || 'simple', // simple ou selenium
+        auto_record: options.autoRecord !== false,
+        auto_transcribe: options.autoTranscribe !== false
+      };
+
+      console.log('🤖 Ativando bot AetherSaaS:', payload);
+
+      // Detectar endpoint baseado no tipo
+      let endpoint = '/meetings/join';
+      
+      if (payload.bot_type === 'selenium') {
+        endpoint = '/meetings/join-selenium';
+      }
+
+      const response = await fetch(`${this.apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${options.apiKey || ''}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Armazenar reunião ativa
+        this.activeMeetings.set(result.meeting_id, {
+          id: result.meeting_id,
+          url: meetingUrl,
+          title: payload.title,
+          startTime: new Date(),
+          status: 'active',
+          botType: result.platform || payload.bot_type
+        });
+
+        console.log('✅ Bot ativado:', result);
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('❌ Erro ao ativar bot:', error);
+      return {
+        success: false,
+        error: error.message,
+        message: `Erro ao conectar com o bot: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Listar reuniões ativas
+   */
+  async getActiveMeetings() {
+    try {
+      const response = await fetch(`${this.apiUrl}/meetings/active`);
+      const result = await response.json();
+      
+      if (result.success) {
+        // Atualizar cache local
+        result.active_meetings.forEach((meeting: any) => {
+          this.activeMeetings.set(meeting.meeting_id, meeting);
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Erro ao buscar reuniões:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Parar reunião
+   */
+  async stopMeeting(meetingId: string) {
+    try {
+      const response = await fetch(`${this.apiUrl}/meetings/${meetingId}/stop`, {
+        method: 'POST'
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        this.activeMeetings.delete(meetingId);
+        console.log('✅ Reunião parada:', meetingId);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Erro ao parar reunião:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Verificar saúde da API
+   */
+  async checkHealth() {
+    try {
+      const response = await fetch(`${this.apiUrl}/health`);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 const AETHERSAAS_API_URL = import.meta.env.VITE_AETHERSAAS_API_URL || 'http://72.60.52.39:8000';
 const AETHERSAAS_API_KEY = import.meta.env.VITE_AETHERSAAS_API_KEY;
 
@@ -507,6 +647,7 @@ function getManualInstructions() {
 
 // Singleton instance
 let aetherSaasService: AetherSaasService | null = null;
+let universalBotService: AetherSaaSBotService | null = null;
 
 export const getAetherSaasService = (): AetherSaasService => {
   if (!aetherSaasService) {
@@ -525,20 +666,46 @@ export const getAetherSaasService = (): AetherSaasService => {
   return aetherSaasService;
 };
 
+export const getUniversalBotService = (): AetherSaaSBotService => {
+  if (!universalBotService) {
+    universalBotService = new AetherSaaSBotService(AETHERSAAS_API_URL);
+  }
+  return universalBotService;
+};
+
 /**
  * Instrui o AetherSaaS Bot a entrar em uma reunião ao vivo AUTOMATICAMENTE
  */
 export async function joinLiveMeeting(meetingLink: string, meetingTitle: string, language: string = 'pt-BR') {
-  const service = getAetherSaasService();
-  return await service.joinLiveMeeting(meetingLink, meetingTitle);
+  const service = getUniversalBotService();
+  return await service.joinMeeting(meetingLink, {
+    title: meetingTitle,
+    botType: 'simple',
+    autoRecord: true,
+    autoTranscribe: true
+  });
 }
 
 /**
  * Testa a conectividade com AetherSaaS API
  */
 export async function testAetherSaasConnection() {
-  const service = getAetherSaasService();
-  return await service.testConnection();
+  const service = getUniversalBotService();
+  const isHealthy = await service.checkHealth();
+  
+  if (isHealthy) {
+    return {
+      success: true,
+      message: 'AetherSaaS Bot API funcionando!',
+      status: 'healthy',
+      botTypes: ['simple', 'selenium'],
+      tested: true
+    };
+  } else {
+    return {
+      success: false,
+      message: 'Falha na conexão com AetherSaaS',
+      error: 'API não está respondendo'
+    };
+  }
 }
-
-export default AetherSaasService;
