@@ -88,7 +88,7 @@ class AetherSaaSBotService {
    */
   async getActiveMeetings() {
     try {
-      const response = await fetch(`${this.apiUrl}/meetings/active`);
+      const response = await fetch(`${this.apiUrl}/api/meetings/active`);
       const result = await response.json();
       
       if (result.success) {
