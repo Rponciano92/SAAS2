@@ -869,12 +869,13 @@ export default function GestaoReunioes() {
               </ul>
             </div>
             <div>
-              <p className="font-medium text-green-700">Bot Avançado (Selenium):</p>
+              <p className="font-medium text-green-700">Bot Selenium (Automação Completa):</p>
               <ul className="text-green-600 space-y-1">
-                <li>• Entrada 100% automática</li>
+                <li>• Entrada 100% automática no Google Meet</li>
                 <li>• Desliga câmera/microfone</li>
                 <li>• Insere nome do bot</li>
                 <li>• Clica "Participar" automaticamente</li>
+                <li>• Verifica entrada na reunião</li>
               </ul>
             </div>
           </div>

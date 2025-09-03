@@ -305,7 +305,7 @@ export default function AetherSaasIntegration() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
             <p>• <strong>🤖 Bot Simples:</strong> Abre navegador, sempre funciona, entrada manual</p>
-            <p>• <strong>⚡ Bot Avançado:</strong> Selenium com automação completa para Google Meet</p>
+            <p>• <strong>⚡ Bot Selenium:</strong> Automação completa: desliga câmera/mic, insere nome, clica participar</p>
             <p>• <strong>📝 Transcrição IA:</strong> Processamento de áudio com identificação de falantes</p>
           </div>
           <div className="space-y-2">
