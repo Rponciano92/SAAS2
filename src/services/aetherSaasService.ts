@@ -28,19 +28,16 @@ class AetherSaaSBotService {
       const payload = {
         meeting_url: meetingUrl,
         title: options.title || 'Reunião AetherSaaS',
-        bot_type: options.botType || 'simple',
-        auto_record: options.autoRecord !== false,
-        auto_transcribe: options.autoTranscribe !== false
+        description: `Reunião automatizada via AetherSaaS Bot - ${options.title || 'Reunião AetherSaaS'}`,
+        participants: [],
+        auto_record: true,
+        auto_transcribe: true
       };
 
       console.log('🤖 Ativando bot AetherSaaS:', payload);
 
       // Usar endpoint correto que está funcionando
-      let endpoint = '/meetings/join-real-simple';
-      
-      if (payload.bot_type === 'selenium') {
-        endpoint = '/meetings/join-real-selenium';
-      }
+      const endpoint = '/meetings/join';
 
       const response = await fetch(`${this.apiUrl}${endpoint}`, {
         method: 'POST',
@@ -64,7 +61,7 @@ class AetherSaaSBotService {
           title: payload.title,
           startTime: new Date(),
           status: 'active',
-          botType: result.platform || payload.bot_type
+          botType: result.platform || 'simple'
         });
 
         console.log('✅ Bot ativado:', result);
