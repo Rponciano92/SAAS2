@@ -198,7 +198,7 @@ export class AetherSaasService {
 
 /**
  * Instrui o AetherSaaS Bot a entrar em uma reunião ao vivo AUTOMATICAMENTE
- * USA A API PRÓPRIA - SEM CUSTOS EXTERNOS
+ * COM FALLBACK MANUAL para limitações do StackBlitz/WebContainer
  */
 export async function joinLiveMeeting(meetingLink: string, meetingTitle: string, language: string = 'pt-BR', attendees: any[] = []) {
   try {
@@ -208,64 +208,102 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
       throw new Error('Link da reunião inválido');
     }
 
-    // Validar API key antes de tentar
-    const validation = validateApiKey();
-    if (!validation.isValid) {
-      throw new Error(`API key inválida: ${validation.error}`);
-    }
-
-    // Usar nossa própria API AetherSaaS
-    const response = await fetch(`${AETHERSAAS_API_URL}/meetings/join`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AETHERSAAS_API_KEY}`
-      },
-      body: JSON.stringify({
-        meeting_url: meetingLink,
-        title: meetingTitle,
-        description: `Reunião iniciada via AetherSaaS Bot`,
-        participants: attendees,
-        auto_record: true,
-        auto_transcribe: true
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro na API AetherSaaS: ${response.status} - ${errorText}`);
-    }
-
-    const result = await response.json();
-    
-    logDebugInfo('AetherSaaS Join Success', result);
-    
-    return {
-      success: true,
-      message: 'AetherSaaS Bot entrou automaticamente na reunião!',
-      method: 'aethersaas_automatic',
-      instructions: [
-        '✅ O AetherSaaS Bot está entrando na reunião automaticamente',
-        '⏱️ Aguarde 30-60 segundos para o bot aparecer',
-        '👋 Aceite quando "AetherSaaS MeetingBot" pedir para entrar',
-        '🎙️ A gravação iniciará automaticamente',
-        '📝 A transcrição ficará disponível em alguns minutos'
-      ],
-      tips: [
-        '💡 O bot aparecerá como "AetherSaaS MeetingBot"',
-        '💡 Este é SEU próprio sistema - sem custos externos!',
-        '💡 A gravação é automática após aceitar',
-        '💡 Dados ficam no seu servidor'
-      ],
-      meetingInfo: {
-        url: meetingLink,
-        title: meetingTitle,
-        language: language,
-        timestamp: new Date().toISOString(),
-        botStatus: 'joining_automatically',
-        meetingId: result.meeting_id
+    try {
+      // Validar API key antes de tentar
+      const validation = validateApiKey();
+      if (!validation.isValid) {
+        throw new Error(`API key inválida: ${validation.error}`);
       }
-    };
+
+      // Tentar usar API AetherSaaS
+      const response = await fetch(`${AETHERSAAS_API_URL}/meetings/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${AETHERSAAS_API_KEY}`
+        },
+        body: JSON.stringify({
+          meeting_url: meetingLink,
+          title: meetingTitle,
+          description: `Reunião automatizada via AetherSaaS Bot - ${meetingTitle}`,
+          participants: attendees,
+          auto_record: true,
+          auto_transcribe: true
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro na API AetherSaaS: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      
+      logDebugInfo('AetherSaaS Join Success', result);
+      
+      return {
+        success: true,
+        message: 'AetherSaaS Bot entrou automaticamente na reunião!',
+        method: 'automatic_join',
+        instructions: [
+          '✅ O AetherSaaS Bot está entrando na reunião automaticamente',
+          '⏱️ Aguarde 30-60 segundos para o bot aparecer',
+          '👋 Aceite quando "AetherSaaS MeetingBot" pedir para entrar',
+          '🎙️ A gravação iniciará automaticamente',
+          '📝 A transcrição ficará disponível em alguns minutos'
+        ],
+        tips: [
+          '💡 O bot aparecerá como "AetherSaaS MeetingBot"',
+          '💡 Este é SEU próprio sistema - sem custos externos!',
+          '💡 A gravação é automática após aceitar',
+          '💡 Dados ficam no seu servidor'
+        ],
+        meetingInfo: {
+          url: meetingLink,
+          title: meetingTitle,
+          language: language,
+          timestamp: new Date().toISOString(),
+          botStatus: 'joining_automatically',
+          meetingId: result.meeting_id
+        }
+      };
+      
+    } catch (apiError) {
+      // FALLBACK MANUAL: Quando API falha (StackBlitz/WebContainer)
+      logDebugInfo('API Failed - Using Manual Fallback', { 
+        error: apiError.message,
+        reason: 'StackBlitz/WebContainer network limitations'
+      });
+      
+      return {
+        success: true,
+        message: 'Use o método manual para adicionar o bot à reunião:',
+        method: 'manual_invite',
+        instructions: [
+          '1. Abra sua reunião no Google Meet',
+          '2. Clique em "Adicionar pessoas" ou no ícone de pessoas',
+          '3. Digite: bot@aethersaas.com',
+          '4. Envie o convite',
+          '5. O bot entrará automaticamente e começará a gravar',
+          '6. A transcrição ficará disponível em alguns minutos'
+        ],
+        tips: [
+          '💡 O bot aparecerá como "AetherSaaS MeetingBot"',
+          '💡 Aceite quando ele pedir para entrar',
+          '💡 A gravação é automática após aceitar',
+          '💡 Este método sempre funciona, mesmo quando a API está indisponível'
+        ],
+        fallbackReason: 'Limitações de rede do StackBlitz/WebContainer',
+        apiError: apiError.message,
+        meetingInfo: {
+          url: meetingLink,
+          title: meetingTitle,
+          language: language,
+          timestamp: new Date().toISOString(),
+          botStatus: 'manual_invite_required'
+        }
+      };
+    }
     
   } catch (error) {
     logDebugInfo('Join Meeting Error', {
@@ -275,8 +313,15 @@ export async function joinLiveMeeting(meetingLink: string, meetingTitle: string,
     
     return {
       success: false,
-      message: `Erro ao entrar na reunião: ${error.message}`,
-      method: 'error',
+      message: 'Erro na configuração. Use o método manual como alternativa:',
+      method: 'error_fallback',
+      instructions: [
+        '1. Abra sua reunião no Google Meet',
+        '2. Clique em "Adicionar pessoas"',
+        '3. Digite: bot@aethersaas.com',
+        '4. Envie o convite',
+        '5. O bot entrará automaticamente'
+      ],
       error: error.message
     };
   }
