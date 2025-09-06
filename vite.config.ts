@@ -48,6 +48,11 @@ export default defineConfig({
         }
       }
     },
+    '/api': {
+      target: 'http://72.60.52.39:8000',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, '')
+    }
     '/api/aethersaas': {
       target: 'http://72.60.52.39:8000',
       changeOrigin: true,
