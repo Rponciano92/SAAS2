@@ -1,7 +1,7 @@
-// AetherSaaS API Service - SUBSTITUTO DO FIREFLIES.AI
+// AetherSaaS API Service - BOT REAL RESTAURADO
 import { supabase } from '@/lib/supabase';
 
-// Configuração da API AetherSaaS
+// Configuração da API AetherSaaS REAL
 const AETHERSAAS_API_URL = import.meta.env.VITE_AETHERSAAS_API_URL || 'http://72.60.52.39:8000';
 const AETHERSAAS_API_KEY = import.meta.env.VITE_AETHERSAAS_API_KEY;
 
@@ -133,17 +133,15 @@ export class AetherSaasService {
   }
 
   async uploadMeetingAudio(audioFile: File, meetingTitle: string): Promise<UploadResponse> {
-    // Para AetherSaaS, vamos simular o upload por enquanto
-    // Em uma implementação real, você adicionaria um endpoint de upload
+    const formData = new FormData();
+    formData.append('audio', audioFile);
+    formData.append('title', meetingTitle);
     
-    logDebugInfo('Upload Meeting Audio', { fileName: audioFile.name, meetingTitle });
-    
-    // Simular upload bem-sucedido
-    const uploadId = `aethersaas_${Date.now()}`;
+    const data = await this.makeAPIRequest('/meetings/upload', 'POST', formData);
     
     return {
-      uploadId: uploadId,
-      status: 'uploaded'
+      uploadId: data.upload_id,
+      status: data.status
     };
   }
 
@@ -153,162 +151,174 @@ export class AetherSaasService {
     return {
       id: data.meeting_id || transcriptionId,
       status: data.status || 'completed',
-      transcript: data.transcript || 'Transcrição processada pelo AetherSaaS',
-      summary: data.summary || 'Resumo gerado pelo AetherSaaS',
-      keywords: data.keywords || ['AetherSaaS', 'reunião', 'transcrição']
+      transcript: data.transcript,
+      summary: data.summary,
+      keywords: data.keywords || []
     };
   }
 
   async getTranscriptions(limit: number = 50): Promise<TranscriptionStatus[]> {
-    const data = await this.makeAPIRequest('/meetings');
+    const data = await this.makeAPIRequest(`/meetings?limit=${limit}`);
     
     if (data.meetings && Array.isArray(data.meetings)) {
       return data.meetings.map((meeting: any) => ({
         id: meeting.meeting_id,
         status: meeting.status || 'completed',
-        transcript: meeting.transcript || 'Transcrição disponível',
-        summary: meeting.summary || 'Resumo disponível',
-        keywords: meeting.keywords || ['reunião', 'AetherSaaS']
+        transcript: meeting.transcript,
+        summary: meeting.summary,
+        keywords: meeting.keywords || []
       }));
     }
     
-    // Retornar dados de exemplo se não houver reuniões
-    return [
-      {
-        id: 'aethersaas_demo_001',
-        status: 'completed',
-        transcript: 'Esta é uma transcrição de demonstração do AetherSaaS.',
-        summary: 'Reunião de demonstração do sistema AetherSaaS funcionando perfeitamente.',
-        keywords: ['AetherSaaS', 'demonstração', 'funcionando']
-      }
-    ];
+    return [];
   }
 
   async searchTranscriptions(searchTerm: string): Promise<TranscriptionStatus[]> {
-    // Para busca, vamos usar o endpoint de reuniões e filtrar localmente
-    const allTranscriptions = await this.getTranscriptions();
+    const data = await this.makeAPIRequest(`/meetings/search?q=${encodeURIComponent(searchTerm)}`);
     
-    return allTranscriptions.filter(t => 
-      t.transcript?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.keywords?.some(k => k.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    return data.results?.map((result: any) => ({
+      id: result.meeting_id,
+      status: result.status || 'completed',
+      transcript: result.transcript,
+      summary: result.summary,
+      keywords: result.keywords || []
+    })) || [];
   }
 }
 
 /**
- * Instrui o AetherSaaS Bot a entrar em uma reunião ao vivo AUTOMATICAMENTE
- * SOLUÇÃO FUNCIONAL: Abre reunião diretamente no navegador
+ * BOT REAL AetherSaaS - Entrada automática em reuniões
+ * FUNCIONA COM API REAL: http://72.60.52.39:8000
  */
 export async function joinLiveMeeting(meetingLink: string, meetingTitle: string, language: string = 'pt-BR', attendees: any[] = []) {
   try {
-    logDebugInfo('Join Live Meeting', { meetingLink, meetingTitle, language, attendees });
+    logDebugInfo('Join Live Meeting - BOT REAL', { meetingLink, meetingTitle, language, attendees });
     
     if (!meetingLink || !meetingLink.startsWith('http')) {
       throw new Error('Link da reunião inválido');
     }
 
-    // SOLUÇÃO FUNCIONAL: Abrir reunião diretamente no navegador
-    window.open(meetingLink, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    // Validar API key
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      throw new Error(validation.error);
+    }
+
+    const aetherSaasService = getAetherSaasService();
     
-    logDebugInfo('Direct Meeting Open Success', { meetingLink, meetingTitle });
+    // CHAMADA REAL PARA O BOT AetherSaaS
+    const result = await aetherSaasService.makeAPIRequest('/meetings/join', 'POST', {
+      meeting_url: meetingLink,
+      title: meetingTitle,
+      description: `Reunião automatizada via AetherSaaS Bot - ${meetingTitle}`,
+      participants: attendees,
+      auto_record: true,
+      auto_transcribe: true,
+      language: language
+    });
+    
+    if (result.success) {
+      logDebugInfo('BOT REAL Success', result);
+      
+      return {
+        success: true,
+        message: 'AetherSaaS Bot entrou automaticamente na reunião! Aguarde alguns segundos.',
+        method: 'automatic_join',
+        instructions: [
+          '✅ O bot AetherSaaS está entrando na reunião automaticamente',
+          '⏱️ Aguarde 30-60 segundos para o bot aparecer',
+          '👋 Aceite quando "AetherSaaS Bot" pedir para entrar',
+          '🎙️ A gravação iniciará automaticamente',
+          '📝 A transcrição ficará disponível em alguns minutos'
+        ],
+        tips: [
+          '💡 O bot aparecerá como "AetherSaaS Bot"',
+          '💡 Não precisa convidar manualmente - ele entra sozinho!',
+          '💡 A gravação é automática após aceitar',
+          '💡 Este é o método oficial do AetherSaaS'
+        ],
+        meetingInfo: {
+          url: meetingLink,
+          title: meetingTitle,
+          meeting_id: result.meeting_id,
+          timestamp: result.timestamp,
+          botStatus: 'joining_automatically'
+        }
+      };
+    } else {
+      throw new Error(result.error || 'Falha na configuração da reunião');
+    }
+    
+  } catch (error) {
+    logDebugInfo('BOT REAL Error', {
+      error: error.message,
+      stack: error.stack
+    });
+    
+    throw new Error(`Erro no bot AetherSaaS: ${error.message}`);
+  }
+}
+
+/**
+ * Testa a conectividade com AetherSaaS API
+ */
+export async function testAetherSaasConnection() {
+  try {
+    logDebugInfo('Testing Connection', { apiUrl: AETHERSAAS_API_URL });
+    
+    // Validar API key primeiro
+    const validation = validateApiKey();
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: validation.error,
+        message: 'API key inválida ou não configurada'
+      };
+    }
+    
+    const aetherSaasService = getAetherSaasService();
+    
+    // Testar endpoint de health
+    const result = await aetherSaasService.makeAPIRequest('/health');
+    
+    logDebugInfo('Connection Test Success', result);
     
     return {
       success: true,
-      message: 'Reunião aberta! Siga as instruções abaixo:',
-      method: 'direct_open',
-      instructions: [
-        '✅ A reunião foi aberta em uma nova aba',
-        '🎥 Clique em "Participar agora" na reunião',
-        '🎙️ Configure seu microfone e câmera conforme necessário',
-        '📝 Para gravar: Clique nos 3 pontos > "Gravar reunião" (Google Meet)',
-        '⚡ Esta é uma solução funcional imediata que sempre funciona'
-      ],
-      tips: [
-        '💡 Para gravar: Use a função nativa do Google Meet',
-        '💡 Para transcrever: Use extensões como Otter.ai, Fireflies ou Notta',
-        '💡 Esta solução funciona em qualquer ambiente (StackBlitz, local, produção)',
-        '💡 Sem dependências externas - sempre disponível'
-      ],
-      meetingInfo: {
-        url: meetingLink,
-        title: meetingTitle,
-        language: language,
-        timestamp: new Date().toISOString(),
-        botStatus: 'direct_open_successful',
-        method: 'browser_direct_open'
-      }
+      message: 'Conexão com AetherSaaS funcionando!',
+      data: result
     };
-    
   } catch (error) {
-    logDebugInfo('Join Meeting Error', {
+    logDebugInfo('Connection Test Failed', {
       error: error.message,
       stack: error.stack
     });
     
     return {
       success: false,
-      message: 'Erro ao abrir reunião. Copie e cole o link manualmente:',
-      method: 'error_fallback',
-      instructions: [
-        '1. Copie o link da reunião',
-        '2. Abra uma nova aba no navegador',
-        '3. Cole o link e pressione Enter',
-        '4. Clique em "Participar agora"',
-        '5. Configure microfone e câmera'
-      ],
       error: error.message,
-      meetingLink: meetingLink
+      message: 'Falha na conexão com AetherSaaS'
     };
   }
 }
 
-// Função para testar a conexão com AetherSaaS
-export async function testAetherSaasConnection() {
-  try {
+// Singleton instance
+let aetherSaasService: AetherSaasService | null = null;
+
+export const getAetherSaasService = (): AetherSaasService => {
+  if (!aetherSaasService) {
     const validation = validateApiKey();
     if (!validation.isValid) {
-      return {
-        success: false,
-        message: validation.error
-      };
+      console.warn('⚠️ AetherSaaS não configurado corretamente:', validation.error);
     }
 
-    const response = await fetch(`${AETHERSAAS_API_URL}/health`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
+    aetherSaasService = new AetherSaasService({ 
+      apiUrl: AETHERSAAS_API_URL, 
+      apiKey: AETHERSAAS_API_KEY || '' 
     });
-
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Erro de conexão: ${response.status}`
-      };
-    }
-
-    const data = await response.json();
-    
-    return {
-      success: true,
-      message: 'Conexão com AetherSaaS funcionando!',
-      data: data
-    };
-    
-  } catch (error) {
-    return {
-      success: false,
-      message: `Erro de rede: ${error.message}`
-    };
   }
-}
+  
+  return aetherSaasService;
+};
 
-// Instância padrão do serviço
-export const aetherSaasService = new AetherSaasService({
-  apiUrl: AETHERSAAS_API_URL,
-  apiKey: AETHERSAAS_API_KEY
-});
-
-// Exportar também como firefliesService para compatibilidade
-export const firefliesService = aetherSaasService;
+export default AetherSaasService;
