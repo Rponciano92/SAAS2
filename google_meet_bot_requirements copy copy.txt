@@ -1,0 +1,15 @@
+# Google Meet Bot - Dependências
+# Instale com: pip install -r requirements.txt
+
+# Core
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Selenium e Anti-detecção
+undetected-chromedriver==3.5.4
+selenium==4.15.2
+
+# Utilidades
+python-multipart==0.0.6
+
