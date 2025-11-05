@@ -288,19 +288,19 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   return (
     <div className="space-y-8">
       {/* Header com boas-vindas */}
-      <div className="glass-card-strong p-6">
+      <div className="section-container">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h1 className="page-title">Bem-vindo, João Silva</h1>
-            <p className="body-text">
-              Desbloqueie o potencial máximo da sua consultoria com a inteligência
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo ao CaaS</h1>
+            <p className="text-gray-600">
+              Desbloqueie o potencial máximo da sua consultoria com inteligência
               artificial que realmente entrega resultados.
             </p>
           </div>
-          <Button 
-            variant="cta" 
-            onClick={() => navigate('/empresas/nova')} 
-            className="flex items-center space-x-2">
+          <Button
+            variant="cta"
+            onClick={() => navigate('/empresas/nova')}
+            className="flex items-center space-x-2 shadow-lg hover:shadow-xl">
               <Plus className="w-4 h-4" />
               <span>Cadastrar Novo Cliente</span>
           </Button>
@@ -308,46 +308,51 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       </div>
 
       {/* Métricas Principais */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-        <Card className="hover-lift">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="caption-text">Horas Economizadas</p>
-                <p className="text-2xl font-bold text-azul-escuro font-aether-primary">
+                <p className="text-sm text-gray-600 font-medium mb-1">Horas Economizadas</p>
+                <p className="text-3xl font-bold text-gray-900">
                   {mockMetrics.horasEconomizadas}h
                 </p>
               </div>
-              <Clock className="w-8 h-8 text-azul-escuro" />
+              <div className="bg-primary-50 p-3 rounded-xl">
+                <Clock className="w-8 h-8 text-primary-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover-lift">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="caption-text">Análises</p>
-                <p className="text-2xl font-bold text-azul-escuro font-aether-primary">
+                <p className="text-sm text-gray-600 font-medium mb-1">Análises Geradas</p>
+                <p className="text-3xl font-bold text-gray-900">
                   {mockMetrics.analisesGeradas}
                 </p>
               </div>
-              <BarChart3 className="w-8 h-8 text-laranja-cta" />
+              <div className="bg-cta-50 p-3 rounded-xl">
+                <BarChart3 className="w-8 h-8 text-cta-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover-lift">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="caption-text">Reuniões</p>
-                <p className="text-2xl font-bold text-azul-escuro font-aether-primary">
+                <p className="text-sm text-gray-600 font-medium mb-1">Reuniões Realizadas</p>
+                <p className="text-3xl font-bold text-gray-900">
                   {mockMetrics.reunioesRealizadas}
                 </p>
               </div>
-              <Calendar className="w-8 h-8 text-dourado-premium" />
+              <div className="bg-success-50 p-3 rounded-xl">
+                <Calendar className="w-8 h-8 text-success-600" />
+              </div>
             </div>
           </CardContent>
         </Card>

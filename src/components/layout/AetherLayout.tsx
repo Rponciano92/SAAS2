@@ -96,36 +96,32 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="h-screen w-screen overflow-hidden marble-background">
+    <div className="h-screen w-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`
-          w-64 h-screen bg-gradient-to-b from-[#003B6D] to-[#001a2e] backdrop-blur-xl border-r border-white/20
+          w-64 h-screen bg-white backdrop-blur-xl border-r border-gray-200 shadow-xl
           fixed top-0 left-0 z-50
           transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         <div className="h-full overflow-y-auto">
           {/* Header */}
-          <div className="p-6 border-b border-white/20 bg-[#003B6D]/95">
+          <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                  <img 
-                    src="/1 copy.png" 
-                    alt="Aether AI Logo" 
-                    className="w-8 h-8 object-contain"
-                  />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">C</span>
                 </div>
                 <div>
-                  <div className="text-white font-bold text-lg">AETHER AI</div>
-                  <div className="text-white/70 text-xs">Assistente Definitivo</div>
+                  <div className="text-gray-900 font-bold text-lg">CaaS</div>
+                  <div className="text-gray-600 text-xs">Consultant Platform</div>
                 </div>
               </div>
               <button
                 onClick={toggleSidebar}
-                className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+                className="lg:hidden text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
@@ -133,11 +129,11 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="p-4 space-y-2">
+          <nav className="p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.id;
-              
+
               return (
                 <button
                   key={item.id}
@@ -146,10 +142,10 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
                     if (window.innerWidth < 1024) setSidebarOpen(false);
                   }}
                   className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-[#0A74DA] to-[#003B6D] text-white shadow-lg backdrop-blur-sm transform scale-105' 
-                      : 'text-white/80 hover:bg-white/10 hover:text-white hover:transform hover:scale-102'
+                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
+                    ${isActive
+                      ? 'bg-primary-50 text-primary-700 font-medium shadow-sm border-l-4 border-primary-600'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                     }
                   `}
                 >
@@ -158,11 +154,11 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
                 </button>
               );
             })}
-            
+
             {/* Logout Button */}
             <button
               onClick={() => console.log('Logout')}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 mt-4 border-t border-white/20 pt-6"
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 mt-4 border-t border-gray-200 pt-6"
             >
               <LogOut size={18} />
               <span className="font-medium text-sm">Sair</span>
@@ -181,64 +177,62 @@ export default function AetherLayout({ children }: AetherLayoutProps) {
       
       {/* Main Content */}
       <div className="w-full flex flex-col h-screen overflow-hidden">
-        <header className="bg-[#003B6D] backdrop-blur-xl border-b border-white/20 px-6 py-4 sticky top-0 z-[100] w-full overflow-visible">
+        <header className="bg-white backdrop-blur-xl border-b border-gray-200 px-6 py-4 sticky top-0 z-[100] w-full overflow-visible shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleSidebar}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700"
               >
                 <Menu size={24} />
               </button>
-              
+
               <div className="flex items-center space-x-3">
-                <img 
-                  src="/1 copy.png" 
-                  alt="Aether AI Logo"
-                  className="w-10 h-10 object-contain p-1 bg-[#003B6D] rounded-lg"
-                />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">C</span>
+                </div>
                 <div>
-                  <span className="text-white font-bold text-lg">AETHER AI</span>
-                  <p className="text-white/70 text-xs">Assistente Definitivo</p>
+                  <span className="text-gray-900 font-bold text-lg">CaaS</span>
+                  <p className="text-gray-600 text-xs">Consultant as a Service</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
               <div className="relative z-[101]">
-                <button 
+                <button
                   onClick={toggleNotifications}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white relative" 
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-700 relative"
                   title="Notificações"
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#FFA500] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-cta-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-md">
                       {unreadCount}
                     </span>
                   )}
                 </button>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => navigate('/empresas/nova')}
-                className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-[#003B6D] to-[#001a2e] px-4 py-2 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm border border-white/20"
+                className="hidden md:flex items-center space-x-2 bg-primary-500 hover:bg-primary-600 px-4 py-2 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm"
                 title="Cadastrar Novo Cliente"
               >
                 <Plus size={16} />
                 <span>Novo Cliente</span>
               </button>
-              
+
               <div className="flex items-center space-x-3 relative z-[101]">
                 <button
                   onClick={toggleUserDropdown}
-                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-200 hover:bg-gray-200 transition-colors"
                 >
-                  <User size={20} className="text-[#003B6D]" />
+                  <User size={20} className="text-gray-600" />
                 </button>
                 <div className="hidden md:block">
-                  <p className="font-medium text-white">João Silva</p>
-                  <p className="text-sm text-white/80">Consultor Sênior</p>
+                  <p className="font-medium text-gray-900">João Silva</p>
+                  <p className="text-sm text-gray-600">Consultor Sênior</p>
                 </div>
               </div>
             </div>

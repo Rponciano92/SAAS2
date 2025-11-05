@@ -51,27 +51,22 @@ export default function Sidebar({ isOpen, onToggle, activeTab, onTabChange }: Si
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto lg:h-screen
       `}>
-        <div className="w-64 h-full bg-gradient-to-b from-[#003B6D] to-[#001a2e] backdrop-blur-xl border-r border-white/20 overflow-y-auto">
+        <div className="w-64 h-full bg-white backdrop-blur-xl border-r border-gray-200 overflow-y-auto shadow-xl">
           {/* Header */}
-          <div className="p-6 border-b border-white/20 bg-[#003B6D]/95">
+          <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <img 
-                    src="/1 copy.png" 
-                    alt="Aether AI Logo" 
-                    className="w-10 h-10 object-contain drop-shadow-lg rounded-lg"
-                  />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#B8860B] to-[#DAA520] rounded-full border-2 border-[#003B6D]"></div>
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl">C</span>
                 </div>
                 <div>
-                  <span className="text-white font-bold text-lg">AETHER AI</span>
-                  <p className="text-white/70 text-xs">Assistente Definitivo</p>
+                  <span className="text-gray-900 font-bold text-lg">CaaS</span>
+                  <p className="text-gray-600 text-xs">Consultant Platform</p>
                 </div>
               </div>
               <button
                 onClick={onToggle}
-                className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+                className="lg:hidden text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
@@ -79,11 +74,11 @@ export default function Sidebar({ isOpen, onToggle, activeTab, onTabChange }: Si
           </div>
 
           {/* Navigation */}
-          <nav className="p-4 space-y-2">
+          <nav className="p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
-              
+
               return (
                 <button
                   key={item.id}
@@ -92,10 +87,10 @@ export default function Sidebar({ isOpen, onToggle, activeTab, onTabChange }: Si
                     if (window.innerWidth < 1024) onToggle();
                   }}
                   className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-[#0A74DA] to-[#003B6D] text-white shadow-lg backdrop-blur-sm transform scale-105' 
-                      : 'text-white/80 hover:bg-white/10 hover:text-white hover:transform hover:scale-102'
+                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
+                    ${isActive
+                      ? 'bg-primary-50 text-primary-700 font-medium shadow-sm border-l-4 border-primary-600'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                     }
                   `}
                 >
